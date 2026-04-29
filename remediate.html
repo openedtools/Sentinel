@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Remediation Lab</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand-icon">🛡</div>
+    <div>
+      <div class="nav-brand-name">SENTINEL</div>
+      <div class="nav-brand-sub">SOC Simulator</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">⊞ Command Center</a>
+    <a href="triage.html" class="nav-link">⚡ Alert Triage</a>
+    <a href="investigate.html" class="nav-link">🔍 Investigation</a>
+    <a href="remediate.html" class="nav-link active">🛠 Remediation Lab</a>
+    <a href="scenarios.html" class="nav-link">📋 Scenarios</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-score-badge">
+      🏆 <span class="score-val" id="nav-score">0 pts</span>
+    </div>
+  </div>
+</nav>
+
+<!-- AI Modal -->
+<div id="ai-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;">
+  <div class="card" style="max-width:520px;width:100%;box-shadow:0 0 48px rgba(0,212,216,0.2);" id="ai-modal-content"></div>
+</div>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">🛠 Remediation Lab</div>
+      <div class="page-subtitle">Active incident in progress. Select nodes on the network diagram and use the action panel to contain the threat.</div>
+    </div>
+    <div class="flex gap-2 items-center">
+      <span class="badge badge-critical">● INCIDENT ACTIVE</span>
+    </div>
+  </div>
+
+  <!-- Incident Summary Banner -->
+  <div class="card mb-4" style="background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.3);">
+    <div class="flex items-start gap-3">
+      <span style="font-size:1.5rem;flex-shrink:0;">🚨</span>
+      <div>
+        <div style="font-weight:700;color:var(--critical);margin-bottom:4px;">Active Incident: Domain Compromise in Progress</div>
+        <div class="text-sm text-muted" style="line-height:1.7;">
+          WS-004 was compromised via a polymorphic macro. Attacker laterally moved to FILE-SERVER-01, dumped credentials from DC-01,
+          created a backdoor Domain Admin account, disabled AV on 47 endpoints, and is currently exfiltrating data via DNS tunneling.
+          <strong style="color:var(--text-primary);">You must contain this before more data leaves the network.</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main layout: Topology + Action Panel + Node list -->
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem;margin-bottom:1rem;">
+
+    <!-- Left: Network Topology -->
+    <div>
+      <div class="card" style="padding:0;">
+
+        <!-- Topology header -->
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);" class="flex justify-between items-center">
+          <div class="card-title">Network Topology</div>
+          <div class="flex gap-3 text-xs text-muted">
+            <span><span style="color:var(--critical)">●</span> Compromised</span>
+            <span><span style="color:var(--medium)">●</span> Suspicious</span>
+            <span><span style="color:var(--low)">●</span> Clean</span>
+            <span><span style="color:var(--text-dim)">●</span> Quarantined</span>
+          </div>
+        </div>
+
+        <!-- SVG topology -->
+        <div class="network-canvas-wrap" style="height:400px;border:none;border-radius:0;">
+          <svg id="topology-svg" width="100%" height="400" viewBox="0 0 760 400"></svg>
+        </div>
+
+        <!-- Action buttons row -->
+        <div style="padding:1rem 1.25rem;border-top:1px solid var(--border);">
+          <div style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:0.75rem;">
+            Actions (click a node first, then choose an action)
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-danger" onclick="quarantineNode()">🔒 Quarantine Node</button>
+            <button class="btn btn-secondary" onclick="killProcess()">⛔ Kill Process</button>
+            <button class="btn btn-secondary" onclick="resetCredentials()">🔑 Reset Credentials</button>
+            <button class="btn btn-secondary" style="background:var(--teal-glow);border-color:rgba(0,212,216,0.4);color:var(--teal);" id="ai-recommend-btn" onclick="aiRecommend()">
+              🤖 AI Recommend
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected node info -->
+      <div class="card mt-3" style="background:rgba(0,212,216,0.03);border-color:rgba(0,212,216,0.15);">
+        <div class="card-title mb-2" style="color:var(--teal)">Selected Node</div>
+        <div id="selected-node-info">
+          <div class="text-xs text-muted">Click any node on the network diagram above to select it and see details.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Node list + Port management + Blocklist -->
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+
+      <!-- Node status list -->
+      <div class="card">
+        <div class="card-title mb-3">Network Nodes</div>
+        <div id="node-list" class="node-status"></div>
+      </div>
+
+      <!-- Block IP/Domain -->
+      <div class="card">
+        <div class="card-title mb-2">Block IP / Domain</div>
+        <div class="flex gap-2 mb-2">
+          <input id="block-ip-input" type="text"
+            placeholder="e.g. exfilbase64.co"
+            style="flex:1;background:var(--bg-primary);border:1px solid var(--border-accent);border-radius:6px;padding:6px 10px;color:var(--text-primary);font-family:var(--font-mono);font-size:0.75rem;outline:none;"
+            onkeydown="if(event.key==='Enter')blockIP()">
+          <button class="btn btn-sm btn-danger" onclick="blockIP()">Block</button>
+        </div>
+        <div id="blocklist" class="text-xs" style="max-height:120px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- Action log -->
+      <div class="card" style="flex:1;">
+        <div class="card-title mb-2">Action Log</div>
+        <div id="action-log" class="log-feed" style="height:200px;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Port Management Table -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <div class="card-title-large">Port Management</div>
+      <span class="text-xs text-muted">Ports marked <span class="text-critical">⚠</span> are being used by the attacker</span>
+    </div>
+    <table class="port-table">
+      <thead>
+        <tr>
+          <th>Port</th>
+          <th>Service</th>
+          <th>Node</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="port-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Learning sidebar row -->
+  <div class="grid-3">
+
+    <div class="card" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+      <div class="card-title mb-2" style="color:var(--teal)">💡 Quarantine</div>
+      <p class="text-xs" style="line-height:1.7;">
+        Isolating an endpoint cuts off all network connections — the attacker loses access and
+        malware cannot spread further. This is the fastest way to stop lateral movement.
+        <strong style="color:var(--text-primary);">Quarantine first, investigate second.</strong>
+      </p>
+    </div>
+
+    <div class="card" style="background:rgba(239,68,68,0.04);border-color:rgba(239,68,68,0.2);">
+      <div class="card-title mb-2" style="color:var(--critical)">⚠ Port 4444</div>
+      <p class="text-xs" style="line-height:1.7;">
+        Port 4444 is the Metasploit default C2 port — if a machine is communicating outbound on
+        this port, it likely has a reverse shell active. Closing it cuts the attacker's remote
+        access immediately.
+        <strong style="color:var(--text-primary);">Port 53 (DNS) is used for covert data exfiltration.</strong>
+      </p>
+    </div>
+
+    <div class="card" style="background:rgba(245,158,11,0.04);border-color:rgba(245,158,11,0.2);">
+      <div class="card-title mb-2" style="color:var(--medium)">⚖ Collateral Damage</div>
+      <p class="text-xs" style="line-height:1.7;">
+        Closing all ports or quarantining the core switch would stop the attack — but would also
+        take down the entire organization. <strong style="color:var(--text-primary);">Precision matters.</strong>
+        Target only compromised nodes and malicious ports to minimize business disruption.
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/remediate.js"></script>
+</body>
+</html>

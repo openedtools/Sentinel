@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Scenario Library</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand-icon">🛡</div>
+    <div>
+      <div class="nav-brand-name">SENTINEL</div>
+      <div class="nav-brand-sub">SOC Simulator</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">⊞ Command Center</a>
+    <a href="triage.html" class="nav-link">⚡ Alert Triage</a>
+    <a href="investigate.html" class="nav-link">🔍 Investigation</a>
+    <a href="remediate.html" class="nav-link">🛠 Remediation Lab</a>
+    <a href="scenarios.html" class="nav-link active">📋 Scenarios</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-score-badge">
+      🏆 <span class="score-val" id="nav-score">0 pts</span>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">📋 Scenario Library</div>
+      <div class="page-subtitle">5 full attack scenarios mapped to Day 3 course content. Each includes a timeline, decision points, and a debrief.</div>
+    </div>
+    <div>
+      <button onclick="resetAllProgress()" class="btn btn-ghost btn-sm">↺ Reset Progress</button>
+    </div>
+  </div>
+
+  <!-- Progress summary -->
+  <div class="card mb-4" id="progress-summary"></div>
+
+  <!-- Scenario grid -->
+  <div class="grid-2" id="scenario-grid">
+    <div class="empty-state"><div class="spinner"></div></div>
+  </div>
+
+  <!-- Course concept map -->
+  <div class="card mt-4">
+    <div class="card-title-large mb-3">Day 3 Concept Map — What Each Scenario Teaches</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;text-align:center;" id="concept-map"></div>
+  </div>
+
+  <!-- Recommended order -->
+  <div class="card mt-4" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+    <div class="card-title mb-3" style="color:var(--teal)">💡 Recommended Learning Order</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+      <div class="text-center">
+        <div style="background:var(--teal);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 6px;">1</div>
+        <div class="text-xs font-mono text-muted">Alert Triage</div>
+        <div class="text-xs" style="color:var(--text-dim)">Build baseline</div>
+      </div>
+      <div class="text-center">
+        <div style="background:var(--teal);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 6px;">2</div>
+        <div class="text-xs font-mono text-muted">Polymorphic</div>
+        <div class="text-xs" style="color:var(--text-dim)">AI detection</div>
+      </div>
+      <div class="text-center">
+        <div style="background:var(--teal);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 6px;">3</div>
+        <div class="text-xs font-mono text-muted">Prompt Injection</div>
+        <div class="text-xs" style="color:var(--text-dim)">Zero-click threat</div>
+      </div>
+      <div class="text-center">
+        <div style="background:var(--teal);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 6px;">4</div>
+        <div class="text-xs font-mono text-muted">Remediation Lab</div>
+        <div class="text-xs" style="color:var(--text-dim)">Hands-on response</div>
+      </div>
+      <div class="text-center">
+        <div style="background:var(--teal);color:#000;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 6px;">5</div>
+        <div class="text-xs font-mono text-muted">Agentic AI</div>
+        <div class="text-xs" style="color:var(--text-dim)">AI vs AI</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/main.js"></script>
+<script>
+async function initScenarios() {
+  const [scenarios, progress] = await Promise.all([
+    fetch('data/scenarios.json').then(r => r.json()),
+    Promise.resolve(SENTINEL.getProgress())
+  ]);
+
+  renderProgressSummary(scenarios, progress);
+  renderScenarioGrid(scenarios, progress);
+  renderConceptMap(scenarios, progress);
+}
+
+function renderProgressSummary(scenarios, progress) {
+  const completed = (progress.scenariosCompleted || []).length;
+  const total = scenarios.length;
+  const pct = Math.round((completed / total) * 100);
+  const triageDone = progress.triagecompleted || progress.triageCompleted;
+
+  document.getElementById('progress-summary').innerHTML = `
+    <div class="flex justify-between items-center mb-3">
+      <div class="card-title-large">Your Progress</div>
+      <span class="font-mono text-teal">${completed} / ${total} scenarios</span>
+    </div>
+    <div class="progress-bar mb-3" style="height:8px;">
+      <div class="progress-fill" style="width:${pct}%;transition:width 1s ease;"></div>
+    </div>
+    <div class="grid-4">
+      <div class="text-center">
+        <div class="font-mono" style="font-size:1.375rem;color:var(--teal);">${completed}</div>
+        <div class="stat-label">Scenarios Done</div>
+      </div>
+      <div class="text-center">
+        <div class="font-mono" style="font-size:1.375rem;color:${triageDone ? 'var(--low)' : 'var(--text-dim)'};">
+          ${triageDone ? '✓' : '—'}
+        </div>
+        <div class="stat-label">Triage Complete</div>
+      </div>
+      <div class="text-center">
+        <div class="font-mono" style="font-size:1.375rem;color:var(--text-primary);">${progress.totalScore || 0}</div>
+        <div class="stat-label">Total Points</div>
+      </div>
+      <div class="text-center">
+        <div class="font-mono" style="font-size:1.375rem;color:var(--medium);">${5 - completed}</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+    </div>`;
+}
+
+function renderScenarioGrid(scenarios, progress) {
+  const grid = document.getElementById('scenario-grid');
+  grid.innerHTML = scenarios.map(s => {
+    const completed = (progress.scenariosCompleted || []).includes(s.id);
+    const pts = progress.scenarioScores?.[s.id];
+    return `
+      <div class="scenario-card ${completed ? 'completed' : ''}">
+        ${completed ? `<div class="scenario-complete-badge">✓ ${pts ? pts + ' pts' : 'Done'}</div>` : ''}
+        <div class="flex items-center gap-3 mb-3">
+          <span style="font-size:2rem;">${s.icon}</span>
+          <div>
+            <div class="scenario-name" style="margin-bottom:2px;">${s.name}</div>
+            <div class="scenario-sub">${s.subtitle}</div>
+          </div>
+        </div>
+        <div class="scenario-tags mb-3">
+          <span class="badge badge-${s.difficulty}">${s.difficulty}</span>
+          <span class="tag">${s.topic}</span>
+        </div>
+        <div class="scenario-desc mb-3">${s.description}</div>
+        <div class="mb-3">
+          <div class="text-xs text-muted mb-2">What you'll learn:</div>
+          ${s.objectives.map(o => `<div class="flex items-start gap-2 mb-1">
+            <span style="color:var(--teal);flex-shrink:0;font-size:0.75rem;">→</span>
+            <span class="text-xs" style="color:var(--text-muted);line-height:1.5;">${o}</span>
+          </div>`).join('')}
+        </div>
+        <div class="flex gap-2">
+          <a href="investigate.html?scenario=${s.id}" class="btn btn-primary" style="flex:1;justify-content:center;">
+            ${completed ? '↩ Replay' : '▶ Start'} Investigation
+          </a>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderConceptMap(scenarios, progress) {
+  const conceptColors = {
+    'Polymorphic Malware / AI-Enabled EDR': '#ef4444',
+    'Prompt Injection / Zero-Click Attacks': '#f97316',
+    'Deepfake Fraud / AI-Generated Social Engineering': '#f59e0b',
+    'Agentic AI / Automated Kill Chain': '#00d4d8',
+    'Supply Chain Attack / Hash Verification': '#8b5cf6'
+  };
+
+  document.getElementById('concept-map').innerHTML = scenarios.map(s => {
+    const completed = (progress.scenariosCompleted || []).includes(s.id);
+    const color = conceptColors[s.topic] || 'var(--teal)';
+    return `
+      <div style="background:${color}10;border:1px solid ${color}30;border-radius:10px;padding:1rem;">
+        <div style="font-size:1.5rem;margin-bottom:6px;">${s.icon}</div>
+        <div style="font-size:0.75rem;font-weight:700;color:${color};margin-bottom:4px;">${s.name}</div>
+        <div style="font-size:0.6875rem;color:var(--text-muted);line-height:1.4;">${s.topic}</div>
+        ${completed ? `<div style="color:var(--low);font-size:0.6875rem;margin-top:6px;font-weight:700;">✓ Complete</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function resetAllProgress() {
+  if (confirm('Reset all progress and scores? This cannot be undone.')) {
+    SENTINEL.resetProgress();
+    SENTINEL.toast('Progress reset', 'info');
+    initScenarios();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initScenarios);
+</script>
+</body>
+</html>

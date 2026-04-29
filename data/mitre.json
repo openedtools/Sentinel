@@ -1,0 +1,34 @@
+{
+  "tactics": [
+    { "id": "TA0043", "name": "Reconnaissance", "color": "#8b5cf6", "description": "Gathering information to plan future operations" },
+    { "id": "TA0042", "name": "Resource Development", "color": "#7c3aed", "description": "Establishing resources to support operations" },
+    { "id": "TA0001", "name": "Initial Access", "color": "#ef4444", "description": "Gaining entry into the target network" },
+    { "id": "TA0002", "name": "Execution", "color": "#f97316", "description": "Running malicious code on the target system" },
+    { "id": "TA0003", "name": "Persistence", "color": "#f59e0b", "description": "Maintaining foothold across restarts and credential changes" },
+    { "id": "TA0004", "name": "Privilege Escalation", "color": "#eab308", "description": "Gaining higher-level permissions" },
+    { "id": "TA0005", "name": "Defense Evasion", "color": "#84cc16", "description": "Avoiding detection by security tools" },
+    { "id": "TA0006", "name": "Credential Access", "color": "#22c55e", "description": "Stealing account credentials" },
+    { "id": "TA0007", "name": "Discovery", "color": "#10b981", "description": "Mapping the environment and target network" },
+    { "id": "TA0008", "name": "Lateral Movement", "color": "#14b8a6", "description": "Pivoting through the network to reach targets" },
+    { "id": "TA0009", "name": "Collection", "color": "#06b6d4", "description": "Gathering data of interest" },
+    { "id": "TA0011", "name": "Command and Control", "color": "#0ea5e9", "description": "Communicating with compromised systems" },
+    { "id": "TA0010", "name": "Exfiltration", "color": "#3b82f6", "description": "Stealing data out of the network" },
+    { "id": "TA0040", "name": "Impact", "color": "#6366f1", "description": "Disrupting, destroying, or manipulating systems" }
+  ],
+  "dayThreeCounts": {
+    "Reconnaissance": 3,
+    "Resource Development": 1,
+    "Initial Access": 11,
+    "Execution": 1,
+    "Persistence": 2,
+    "Privilege Escalation": 1,
+    "Defense Evasion": 0,
+    "Credential Access": 0,
+    "Discovery": 2,
+    "Lateral Movement": 4,
+    "Collection": 2,
+    "Command and Control": 2,
+    "Exfiltration": 2,
+    "Impact": 4
+  }
+}

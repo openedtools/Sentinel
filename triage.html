@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Alert Triage</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand-icon">🛡</div>
+    <div>
+      <div class="nav-brand-name">SENTINEL</div>
+      <div class="nav-brand-sub">SOC Simulator</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">⊞ Command Center</a>
+    <a href="triage.html" class="nav-link active">⚡ Alert Triage</a>
+    <a href="investigate.html" class="nav-link">🔍 Investigation</a>
+    <a href="remediate.html" class="nav-link">🛠 Remediation Lab</a>
+    <a href="scenarios.html" class="nav-link">📋 Scenarios</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-score-badge">
+      🏆 <span class="score-val" id="nav-score">0 pts</span>
+    </div>
+  </div>
+</nav>
+
+<div style="display:grid;grid-template-columns:1fr 300px;gap:1rem;max-width:1280px;margin:0 auto;padding:1.5rem;">
+
+  <!-- ── Left: Alert queue ── -->
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">⚡ Alert Triage</div>
+        <div class="page-subtitle">20 alerts — classify each as True Positive, False Positive, or Escalate. Then see what the AI thinks.</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="card mb-4" style="padding:0.875rem 1.25rem;">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs text-muted">Progress</span>
+        <span class="text-xs font-mono" id="triage-answered">0 / 20</span>
+      </div>
+      <div class="progress-bar" style="height:6px;">
+        <div class="progress-fill" id="triage-progress" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Alert queue -->
+    <div id="alert-queue"></div>
+
+    <!-- Debrief (shown after all answered) -->
+    <div id="triage-debrief" class="hidden mt-4"></div>
+  </div>
+
+  <!-- ── Right: Score + context panel ── -->
+  <div style="position:sticky;top:72px;height:fit-content;display:flex;flex-direction:column;gap:1rem;">
+
+    <!-- Score -->
+    <div class="card">
+      <div class="card-title mb-3">Your Score</div>
+      <div class="stat-big stat-teal" id="triage-score">0</div>
+      <div class="stat-label">points earned</div>
+      <hr class="divider">
+      <div class="flex justify-between text-sm">
+        <span class="text-muted">Accuracy</span>
+        <span class="font-mono text-teal" id="triage-accuracy">—</span>
+      </div>
+    </div>
+
+    <!-- How scoring works -->
+    <div class="card">
+      <div class="card-title mb-3">Scoring</div>
+      <div class="flex justify-between text-xs mb-2">
+        <span class="text-muted">Correct (easy)</span>
+        <span class="font-mono text-low">+10 pts</span>
+      </div>
+      <div class="flex justify-between text-xs mb-2">
+        <span class="text-muted">Correct (medium)</span>
+        <span class="font-mono text-teal">+15 pts</span>
+      </div>
+      <div class="flex justify-between text-xs mb-2">
+        <span class="text-muted">Correct (hard)</span>
+        <span class="font-mono" style="color:var(--high)">+20 pts</span>
+      </div>
+      <div class="flex justify-between text-xs">
+        <span class="text-muted">Incorrect</span>
+        <span class="font-mono text-muted">+0 pts</span>
+      </div>
+    </div>
+
+    <!-- Key concept reminder -->
+    <div class="card" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+      <div class="card-title mb-2" style="color:var(--teal);">💡 Key Concept</div>
+      <p class="text-xs" style="line-height:1.6;">
+        A real SOC receives <strong style="color:var(--text-primary);">50,000+ alerts per day.</strong>
+        AI-enabled SIEMs reduce this to a manageable <strong style="color:var(--teal);">~200 prioritized incidents</strong>
+        — a 99%+ noise reduction.
+      </p>
+      <hr class="divider">
+      <p class="text-xs" style="line-height:1.6;">
+        Without AI assistance, analysts experience <strong style="color:var(--text-primary);">alert fatigue</strong>
+        — missing real threats buried in false positives.
+      </p>
+    </div>
+
+    <!-- Answer key guide -->
+    <div class="card">
+      <div class="card-title mb-3">Classification Guide</div>
+      <div class="mb-2">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="badge badge-critical">TP</span>
+          <span class="text-xs font-mono">True Positive</span>
+        </div>
+        <p class="text-xs text-muted">Confirmed malicious activity. Requires response.</p>
+      </div>
+      <hr class="divider">
+      <div class="mb-2">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="badge badge-low">FP</span>
+          <span class="text-xs font-mono">False Positive</span>
+        </div>
+        <p class="text-xs text-muted">Benign activity that triggered an alert. Safe to dismiss.</p>
+      </div>
+      <hr class="divider">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="badge badge-medium">ESC</span>
+          <span class="text-xs font-mono">Escalate</span>
+        </div>
+        <p class="text-xs text-muted">Ambiguous — needs human analyst review before acting.</p>
+      </div>
+    </div>
+
+    <!-- MITRE quick ref -->
+    <div class="card">
+      <div class="card-title mb-2">MITRE ATT&CK® Quick Ref</div>
+      <div class="text-xs text-muted" style="line-height:1.8;">
+        <div>🔴 <strong>Initial Access</strong> — How attacker gets in</div>
+        <div>🟠 <strong>Execution</strong> — Running malicious code</div>
+        <div>🟡 <strong>Persistence</strong> — Maintaining foothold</div>
+        <div>🟢 <strong>Lateral Movement</strong> — Pivoting through network</div>
+        <div>🔵 <strong>Exfiltration</strong> — Stealing data out</div>
+        <div>🟣 <strong>Collection</strong> — Gathering target data</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/triage.js"></script>
+</body>
+</html>
