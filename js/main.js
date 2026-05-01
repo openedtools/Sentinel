@@ -407,6 +407,14 @@ SENTINEL.showIntroModal = function(studentName) {
 };
 
 /* ── Score export ── */
+SENTINEL.logout = function() {
+  localStorage.removeItem('sentinel_student_name');
+  localStorage.removeItem(this.storageKey);
+  localStorage.removeItem('sentinel_intro_seen');
+  localStorage.removeItem('sentinel_incident_answers');
+  window.location.href = 'index.html';
+};
+
 SENTINEL.generateScoreCode = function() {
   const name = (this.getStudentName() || 'ANON').toUpperCase().replace(/\s+/g, '-').slice(0, 12);
   const p = this.getProgress();
@@ -459,7 +467,8 @@ const CROSS_REFS = {
 SENTINEL._getPageId = function() {
   const raw = window.location.pathname.split('/').pop() || 'index.html';
   const page = raw.includes('.') ? raw : (raw || 'index.html') + '.html';
-  return { 'index.html': 'dashboard', 'triage.html': 'triage', 'investigate.html': 'investigate',
+  return { 'index.html': 'dashboard', 'incident-response.html': 'incidents',
+           'triage.html': 'triage', 'investigate.html': 'investigate',
            'remediate.html': 'remediate', 'scenarios.html': 'scenarios' }[page] || 'dashboard';
 };
 
@@ -470,11 +479,12 @@ SENTINEL._escHtml = function(str) {
 /* ── App shell injection (sidebar + topbar) ── */
 SENTINEL.renderShell = function() {
   const PAGE_META = {
-    dashboard:   { name: 'Command Center',  href: 'index.html',      icon: '⊞' },
-    triage:      { name: 'Alert Triage',    href: 'triage.html',     icon: '⚡' },
-    investigate: { name: 'Investigation',   href: 'investigate.html',icon: '🔍' },
-    remediate:   { name: 'Remediation Lab', href: 'remediate.html',  icon: '🛠' },
-    scenarios:   { name: 'Scenario Library',href: 'scenarios.html',  icon: '📋' },
+    dashboard:   { name: 'Command Center',    href: 'index.html',             icon: '⊞' },
+    incidents:   { name: 'Incident Response', href: 'incident-response.html', icon: '⚑' },
+    triage:      { name: 'Alert Triage',      href: 'triage.html',            icon: '⚡' },
+    investigate: { name: 'Investigation',     href: 'investigate.html',       icon: '🔍' },
+    remediate:   { name: 'Remediation Lab',   href: 'remediate.html',         icon: '🛠' },
+    scenarios:   { name: 'Scenario Library',  href: 'scenarios.html',         icon: '📋' },
   };
   const pageId  = this._getPageId();
   const current = PAGE_META[pageId];
@@ -500,6 +510,12 @@ SENTINEL.renderShell = function() {
       <nav style="flex:1;overflow-y:auto;padding:0.25rem 0;">
         <div class="nav-section-label">OPERATIONS</div>
         ${navItem(['dashboard', PAGE_META.dashboard])}
+        ${navItem(['incidents', PAGE_META.incidents])}
+        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;" title="Coming soon"><span class="nav-icon">◎</span>Detection &amp; Threat Intel</a>
+        <div class="nav-section-label" style="margin-top:0.5rem;">ASSETS</div>
+        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;"><span class="nav-icon">▤</span>Assets</a>
+        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;"><span class="nav-icon">▢</span>Endpoints</a>
+        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;"><span class="nav-icon">⚷</span>Identity</a>
         <div class="nav-section-label" style="margin-top:0.5rem;">TRAINING</div>
         ${navItem(['triage',      PAGE_META.triage])}
         ${navItem(['investigate', PAGE_META.investigate])}
@@ -520,21 +536,25 @@ SENTINEL.renderShell = function() {
 
   const tb = document.getElementById('topbar-mount');
   if (tb) {
-    const incBtn = pageId === 'dashboard'
-      ? `<button id="toggle-incidents-btn" class="pill" style="cursor:pointer;background:none;color:var(--text);font-family:var(--font-ui);font-size:11px;" onclick="SENTINEL.toggleIncidentsView()">Incidents flow ›</button>`
-      : '';
+    let navBtn = '';
+    if (pageId === 'dashboard') {
+      navBtn = `<button id="toggle-incidents-btn" class="btn btn-primary" style="font-size:11px;" onclick="SENTINEL.toggleIncidentsView()">Incidents flow ›</button>`;
+    } else if (pageId === 'incidents') {
+      navBtn = `<a href="index.html" class="btn" style="font-size:11px;">← Command Center</a>`;
+    }
     tb.innerHTML = `<header class="topbar">
       <div>
-        <div class="crumb">SENTINEL › <span style="color:var(--text);font-weight:600;">${current.name}</span></div>
-        <div class="greeting">Good ${tod}, <strong>${firstName}</strong></div>
+        <div class="crumb">SENTINEL <span style="color:var(--text-muted);margin:0 4px;">/</span> <span style="color:var(--text);font-weight:600;">${current.name}</span></div>
+        <div class="greeting">Good ${tod}, <strong style="color:var(--teal);">${firstName}</strong></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">17 APR 2026 · DCOI Thailand · Day 3 — AI-Enabled SIEM/SOC</div>
       </div>
       <div style="flex:1;"></div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <span class="pill live"><span class="dot"></span><span id="topbar-score">${this._escHtml(score)}</span></span>
-        <span class="pill">Last 24H</span>
+        <span class="pill"><span style="color:var(--teal);">★</span> <span id="topbar-score" style="color:var(--teal);font-weight:700;">${this._escHtml(score)}</span></span>
+        <span class="pill">⏱ Last 24H</span>
         <span class="pill live"><span class="dot"></span>STREAMING</span>
-        ${incBtn}
-        <button class="pill" title="Reset progress" style="cursor:pointer;background:none;color:var(--text-muted);font-family:var(--font-ui);font-size:11px;border-color:var(--line);" onclick="if(confirm('Reset all progress and start over?')){SENTINEL.resetProgress();location.reload();}">⏻</button>
+        ${navBtn}
+        <button class="pill" title="End session" style="cursor:pointer;background:none;color:var(--text-muted);font-family:var(--font-ui);font-size:13px;border-color:var(--line);" onclick="SENTINEL.logout()">⏻</button>
       </div>
     </header>`;
   }
