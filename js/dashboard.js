@@ -649,7 +649,7 @@ function buildIncidentsFlow(container) {
 
   function computeLayout(w, h) {
     W = w; H = h;
-    aiX = 170; aiY = H * 0.5;
+    aiX = 260; aiY = H * 0.5;
     aiR = Math.min(H * 0.26, 110);
     incidentsX = aiX + aiR + 130;
     splitX     = incidentsX + 130;
@@ -657,7 +657,7 @@ function buildIncidentsFlow(container) {
     manualX    = W * 0.6;  manualY = H * 0.78;
     resolvedX  = W * 0.86; resolvedY = H * 0.18;
     sevHubX    = W * 0.86; sevHubY   = H * 0.78;
-    hitlMidX   = autoX + 90;
+    hitlMidX   = autoX + 170;
     hitlMidY   = (autoY + manualY) * 0.5;
     hitlBackX  = (autoX + resolvedX) * 0.5;
     hitlBackY  = autoY;
@@ -761,14 +761,16 @@ function buildIncidentsFlow(container) {
     svg.appendChild(c(hitlMidX, hitlMidY, 2.5, {fill:'rgba(94,234,212,0.9)'}));
 
     /* HITL dashed bridges — pill → AUTOMATED (up) and pill → MANUAL (down) */
+    /* Dashed line: HITL pill → RESOLVED endpoint (teal, up-right) */
     const hitlToAuto = p(
-      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX-10} ${hitlMidY-60}, ${autoX+70} ${autoY+40}, ${autoX+14} ${autoY}`,
+      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX+40} ${hitlMidY-80}, ${resolvedX-60} ${resolvedY+40}, ${resolvedX-10} ${resolvedY}`,
       {stroke:'rgba(94,234,212,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
     hitlToAuto.style.animation = 'dashDrift 2s linear infinite';
     svg.appendChild(hitlToAuto);
 
+    /* Dashed line: HITL pill → SEVERITY HUB endpoint (amber, down-right) */
     const hitlToMan = p(
-      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX-10} ${hitlMidY+60}, ${manualX+70} ${manualY-40}, ${manualX+14} ${manualY}`,
+      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX+40} ${hitlMidY+80}, ${sevHubX-60} ${sevHubY-40}, ${sevHubX-10} ${sevHubY}`,
       {stroke:'rgba(251,146,60,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
     hitlToMan.style.animation = 'dashDrift 2s linear infinite';
     svg.appendChild(hitlToMan);
