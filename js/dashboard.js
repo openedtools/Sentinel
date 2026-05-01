@@ -296,7 +296,11 @@ function buildAIFlowViz() {
     const rect = anchorEl.getBoundingClientRect();
     const wrapRect = wrap.getBoundingClientRect();
     const tipLeft = Math.min(rect.right - wrapRect.left + 10, W - 260);
-    const tipTop  = Math.max(rect.top - wrapRect.top - 10, 8);
+    const anchorRelTop = rect.top - wrapRect.top;
+    const TIP_H = 150; // estimated tooltip height
+    const tipTop = (anchorRelTop + TIP_H > H - 20)
+      ? Math.max(anchorRelTop - TIP_H + 10, 8)   // flip upward
+      : Math.max(anchorRelTop - 10, 8);
     tip.style.cssText = `position:absolute;left:${tipLeft}px;top:${tipTop}px;width:240px;background:var(--bg-2);border:1px solid ${s.color}55;border-radius:10px;padding:12px 14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:auto;`;
     tip.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
