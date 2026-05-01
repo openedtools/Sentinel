@@ -112,14 +112,22 @@ function buildAIFlowViz() {
   const SVG_NS    = 'http://www.w3.org/2000/svg';
 
   const SOURCES = [
-    { id:'ep',   label:'Endpoints',    sub:'41,700',    icon:'▣', color:'#5eead4', count:'56.3 TB' },
-    { id:'ngfw', label:'NGFW',         sub:'Firewall',  icon:'◈', color:'#fb923c', count:'3.1 TB' },
-    { id:'aws',  label:'AWS',          sub:'Cloud',     icon:'☁', color:'#facc15', count:'2.6 TB' },
-    { id:'azure',label:'Azure',        sub:'Cloud',     icon:'◆', color:'#38bdf8', count:'238 GB' },
-    { id:'gcp',  label:'Google Cloud', sub:'Cloud',     icon:'◉', color:'#4ade80', count:'2.6 TB' },
-    { id:'o365', label:'Office 365',   sub:'Email',     icon:'✉', color:'#f43f5e', count:'201 GB', alert:true },
-    { id:'okta', label:'Okta',         sub:'Identity',  icon:'⚷', color:'#a78bfa', count:'2.5 GB' },
-    { id:'pp',   label:'Proofpoint',   sub:'Email Sec', icon:'◐', color:'#22d3ee', count:'5.5 GB' },
+    { id:'ep',   label:'Endpoints',    sub:'41,700',    icon:'▣', color:'#5eead4', count:'56.3 TB',
+      desc:'Endpoint Detection & Response (EDR) agents running on 41,700 workstations and servers. Collects process execution, file changes, registry edits, and network connections. Largest single data source — 56.3 TB/day.' },
+    { id:'ngfw', label:'NGFW',         sub:'Firewall',  icon:'◈', color:'#fb923c', count:'3.1 TB',
+      desc:'Next-Generation Firewall logs covering all inbound/outbound traffic. Inspects packets at Layer 7, blocks known-bad IPs, and generates alerts on port scans, C2 beaconing, and policy violations.' },
+    { id:'aws',  label:'AWS',          sub:'Cloud',     icon:'☁', color:'#facc15', count:'2.6 TB',
+      desc:'Amazon Web Services CloudTrail + GuardDuty logs. Tracks API calls, IAM changes, S3 access, EC2 instance actions. Critical for detecting cloud-native attacks like privilege escalation and data exfiltration via cloud APIs.' },
+    { id:'azure',label:'Azure',        sub:'Cloud',     icon:'◆', color:'#38bdf8', count:'238 GB',
+      desc:'Microsoft Azure Sentinel connector pulling Activity Logs, Azure AD sign-ins, and Defender for Cloud alerts. Covers hybrid identity and Azure-hosted workloads.' },
+    { id:'gcp',  label:'Google Cloud', sub:'Cloud',     icon:'◉', color:'#4ade80', count:'2.6 TB',
+      desc:'Google Cloud Audit Logs and Security Command Center findings. Monitors GKE clusters, BigQuery access, and Cloud Storage. Detects anomalous API usage and misconfigured cloud resources.' },
+    { id:'o365', label:'Office 365',   sub:'Email',     icon:'✉', color:'#f43f5e', count:'201 GB', alert:true,
+      desc:'⚠ ALERT ACTIVE — Microsoft 365 audit logs covering Exchange, Teams, SharePoint, and OneDrive. Currently flagged for AI-generated spear-phishing (WormGPT score 0.97) and a prompt injection attempt in the email summarizer agent.' },
+    { id:'okta', label:'Okta',         sub:'Identity',  icon:'⚷', color:'#a78bfa', count:'2.5 GB',
+      desc:'Identity Provider (IdP) logs from Okta. Every login, MFA challenge, password reset, and app assignment is forwarded. Key source for detecting credential stuffing, impossible travel, and unauthorized SSO access.' },
+    { id:'pp',   label:'Proofpoint',   sub:'Email Sec', icon:'◐', color:'#22d3ee', count:'5.5 GB',
+      desc:'Proofpoint Email Security gateway logs. Captures phishing detections, malicious attachment sandboxing results, URL rewrites, and DMARC/SPF failures. Feeds directly into the AI phishing triage pipeline.' },
   ];
 
   wrap.style.cssText = 'position:relative;overflow:hidden;' + (wrap.style.cssText || '');
@@ -245,8 +253,11 @@ function buildAIFlowViz() {
     SOURCES.forEach((s, i) => {
       const y = sourceYs[i];
       const div = document.createElement('div');
-      div.style.cssText = `position:absolute;left:${sourceX-108}px;top:${y-14}px;width:122px;display:flex;align-items:center;gap:7px;justify-content:flex-end;`;
+      div.style.cssText = `position:absolute;left:${sourceX-108}px;top:${y-14}px;width:122px;display:flex;align-items:center;gap:7px;justify-content:flex-end;cursor:pointer;pointer-events:auto;border-radius:6px;padding:2px 4px;transition:background 0.15s;`;
       div.innerHTML = `<div style="text-align:right;"><div style="font-size:11px;font-weight:600;color:${s.alert?'var(--crit)':'var(--text)'};line-height:1.2;">${s.label}${s.alert?'<span style="margin-left:3px;font-size:9px;padding:1px 3px;background:rgba(244,63,94,0.18);color:var(--crit);border-radius:3px;font-family:var(--font-mono);">!</span>':''}</div><div style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);">${s.count}</div></div><div style="width:22px;height:22px;border-radius:5px;background:${s.color}1f;border:1px solid ${s.color}66;display:flex;align-items:center;justify-content:center;color:${s.color};font-size:11px;flex-shrink:0;">${s.icon}</div>`;
+      div.onmouseenter = () => { div.style.background = `${s.color}18`; };
+      div.onmouseleave = () => { div.style.background = ''; };
+      div.onclick = () => showSourceTooltip(s, div);
       overlay.appendChild(div);
     });
 
@@ -260,19 +271,46 @@ function buildAIFlowViz() {
     makeLabel(`position:absolute;left:${coreCx-40}px;top:${coreCy-14}px;width:80px;text-align:center;`,
       `<div style="font-size:9px;letter-spacing:0.18em;color:var(--teal);font-weight:700;">SENTINEL · AI</div><div style="font-size:8px;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px;">v4.2 · streaming</div>`);
 
-    // Incidents counter (right of core)
-    makeLabel(`position:absolute;left:${coreCx+coreR+24}px;top:${coreCy-20}px;text-align:left;width:80px;`,
-      `<div style="font-size:22px;font-weight:600;color:var(--teal);line-height:1;font-family:var(--font-mono);">94</div><div style="font-size:9px;letter-spacing:0.14em;color:var(--text-muted);margin-top:3px;font-weight:700;">INCIDENTS</div>`);
+    // Incidents counter (right of core) — clickable, links to Incident Response
+    const incEl = document.createElement('div');
+    incEl.style.cssText = `position:absolute;left:${coreCx+coreR+24}px;top:${coreCy-20}px;text-align:left;width:80px;cursor:pointer;pointer-events:auto;padding:4px 6px;border-radius:6px;transition:background 0.15s;`;
+    incEl.innerHTML = `<div style="font-size:22px;font-weight:600;color:var(--teal);line-height:1;font-family:var(--font-mono);">94</div><div style="font-size:9px;letter-spacing:0.14em;color:var(--text-muted);margin-top:3px;font-weight:700;">INCIDENTS ›</div>`;
+    incEl.title = 'View Incident Response';
+    incEl.onmouseenter = () => { incEl.style.background = 'rgba(94,234,212,0.1)'; };
+    incEl.onmouseleave = () => { incEl.style.background = ''; };
+    incEl.onclick = () => { window.location.href = 'incident-response.html'; };
+    overlay.appendChild(incEl);
 
     // Incident lane counters
     incidentLanes.forEach((lane, i) => {
       makeLabel(`position:absolute;left:${incidentX+16}px;top:${lane.y-18}px;width:130px;`,
         `<div style="font-size:22px;font-weight:600;color:${i===0?'var(--teal)':'var(--high)'};line-height:1;font-family:var(--font-mono);">${lane.count}</div><div style="font-size:9px;letter-spacing:0.14em;color:var(--text-muted);margin-top:3px;font-weight:700;">${lane.label}</div>`);
     });
+  }
 
-    // "Can be automated" callout
-    makeLabel(`position:absolute;left:${coreCx+coreR+80}px;top:${coreCy+90}px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:999px;padding:6px 14px;font-size:11px;color:var(--text);white-space:nowrap;pointer-events:auto;`,
-      `<span style="color:var(--teal);font-family:var(--font-mono);font-weight:700;">20</span> can be automated <span style="color:var(--text-muted);font-size:10px;margin-left:6px;">· 10 playbooks ready</span>`);
+  /* ── Source tooltip popup ── */
+  function showSourceTooltip(s, anchorEl) {
+    document.getElementById('aicore-source-tooltip')?.remove();
+    const tip = document.createElement('div');
+    tip.id = 'aicore-source-tooltip';
+    const rect = anchorEl.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    const tipLeft = Math.min(rect.right - wrapRect.left + 10, W - 260);
+    const tipTop  = Math.max(rect.top - wrapRect.top - 10, 8);
+    tip.style.cssText = `position:absolute;left:${tipLeft}px;top:${tipTop}px;width:240px;background:var(--bg-2);border:1px solid ${s.color}55;border-radius:10px;padding:12px 14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:auto;`;
+    tip.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:28px;height:28px;border-radius:6px;background:${s.color}22;border:1px solid ${s.color}66;display:flex;align-items:center;justify-content:center;color:${s.color};font-size:14px;flex-shrink:0;">${s.icon}</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:${s.alert?'var(--crit)':'var(--text)'};">${s.label}</div>
+          <div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">${s.count} · 24h</div>
+        </div>
+        <button onclick="document.getElementById('aicore-source-tooltip')?.remove()" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;line-height:1;padding:2px 4px;">✕</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">${s.desc}</div>`;
+    overlay.appendChild(tip);
+    const dismiss = (e) => { if (!tip.contains(e.target) && e.target !== anchorEl) { tip.remove(); document.removeEventListener('click', dismiss); } };
+    setTimeout(() => document.addEventListener('click', dismiss), 0);
   }
 
   /* ── CoreParticles — DO NOT MODIFY orbital math ── */
