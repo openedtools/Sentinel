@@ -801,7 +801,7 @@ function buildIncidentsFlow(container) {
     svg.appendChild(c(resolvedX,resolvedY,10,{fill:'var(--teal)',stroke:'rgba(94,234,212,0.4)','stroke-width':'6'}));
 
     /* Severity hub anchor */
-    svg.appendChild(c(sevHubX,sevHubY,5,{fill:'#fb923c'}));
+    svg.appendChild(c(sevHubX,sevHubY,10,{fill:'#fb923c',stroke:'rgba(251,146,60,0.4)','stroke-width':'6'}));
 
     /* Severity dots */
     SEVERITIES.forEach(s => {
