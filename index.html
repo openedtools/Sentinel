@@ -8,358 +8,498 @@
 </head>
 <body>
 
-<!-- ── Navigation ── -->
-<nav class="nav">
-  <a href="index.html" class="nav-brand">
-    <div class="nav-brand-icon">🛡</div>
-    <div>
-      <div class="nav-brand-name">SENTINEL</div>
-      <div class="nav-brand-sub">SOC Simulator</div>
-    </div>
-  </a>
-  <div class="nav-links">
-    <a href="index.html" class="nav-link active">⊞ Command Center</a>
-    <a href="triage.html" class="nav-link">⚡ Alert Triage</a>
-    <a href="investigate.html" class="nav-link">🔍 Investigation</a>
-    <a href="remediate.html" class="nav-link">🛠 Remediation Lab</a>
-    <a href="scenarios.html" class="nav-link">📋 Scenarios</a>
-  </div>
-  <div class="nav-right">
-    <div class="live-dot"></div>
-    <span class="text-xs text-muted">LIVE</span>
-    <div class="nav-score-badge">
-      🏆 <span class="score-val" id="nav-score">0 pts</span>
-    </div>
-  </div>
-</nav>
+<div class="app">
+  <!-- sidebar injected by renderShell() -->
+  <div id="sb"></div>
 
-<!-- ── Page ── -->
-<div class="page">
+  <div class="main">
+    <!-- topbar injected by renderShell() -->
+    <div id="topbar-mount"></div>
 
-  <!-- Header -->
-  <div class="page-header">
-    <div>
-      <div class="page-title">SENTINEL Command Center</div>
-      <div class="page-subtitle">AI-Enabled SOC Dashboard — Last 24H · DCOI Thailand Exercise · 17 APR 2026</div>
-    </div>
-    <div class="flex gap-2 items-center">
-      <span class="badge badge-teal">● LIVE SIMULATION</span>
-    </div>
-  </div>
+    <!-- Command Center view -->
+    <div id="view-command">
 
-  <!-- ── Row 1: Big stat counters ── -->
-  <div class="grid-5 mb-4">
-
-    <div class="card">
-      <div class="card-title mb-2">Alerts Ingested</div>
-      <div class="stat-big" id="stat-alerts">0</div>
-      <div class="stat-label">raw events / 24h</div>
-      <div class="progress-bar mt-2">
-        <div class="progress-fill progress-fill-danger" style="width:100%"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title mb-2">AI-Prioritized Incidents</div>
-      <div class="stat-big stat-teal" id="stat-incidents">0</div>
-      <div class="stat-label">after 95% noise reduction</div>
-      <div class="progress-bar mt-2">
-        <div class="progress-fill" style="width:5%"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title mb-2">Resolved</div>
-      <div class="stat-big stat-low" id="stat-resolved">0</div>
-      <div class="stat-label">incidents closed</div>
-      <div class="progress-bar mt-2">
-        <div class="progress-fill progress-fill-warning" style="width:79%"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title mb-2">Open Incidents</div>
-      <div class="stat-big stat-critical" id="stat-open">0</div>
-      <div class="stat-label">require attention</div>
-      <div class="progress-bar mt-2">
-        <div class="progress-fill progress-fill-danger" style="width:21%"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title mb-2">Events Prevented</div>
-      <div class="stat-big stat-teal" style="font-size:1.75rem" id="stat-prevented">0</div>
-      <div class="stat-label">by AI automation</div>
-      <div class="progress-bar mt-2">
-        <div class="progress-fill" style="width:88%"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Row 2: Sankey + Resolved by Assignee + Automation ratio ── -->
-  <div style="display:grid;grid-template-columns:1fr 260px;gap:1rem;margin-bottom:1rem;">
-
-    <!-- Sankey flow -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Alert → Incident Flow</div>
-        <span class="badge badge-teal">AI Noise Reduction: 95.3%</span>
-      </div>
-      <div class="network-canvas-wrap" style="height:220px;">
-        <svg id="sankey-svg" width="100%" height="220"></svg>
-      </div>
-      <div class="flex gap-4 mt-3" style="justify-content:center;">
-        <div class="flex gap-2 items-center text-xs text-muted">
-          <div style="width:12px;height:3px;background:#22c55e;border-radius:2px"></div> Automated Resolution
+      <!-- ── Command Bar (XSIAM-style filter strip) ── -->
+      <div class="cmd-bar mb-4">
+        <div class="cmd-bar-left">
+          <span class="cmd-chip cmd-chip-active">⏱ Last 24 Hours ▾</span>
+          <span class="cmd-chip">🏢 All Tenants ▾</span>
+          <span class="cmd-chip">🌐 Thailand · DCOI ▾</span>
+          <span class="cmd-chip cmd-chip-alert">🔴 3 Critical Open</span>
         </div>
-        <div class="flex gap-2 items-center text-xs text-muted">
-          <div style="width:12px;height:3px;background:#f59e0b;border-radius:2px"></div> Manual Review
-        </div>
-        <div class="flex gap-2 items-center text-xs text-muted">
-          <div style="width:12px;height:3px;background:#ef4444;border-radius:2px"></div> Open / Escalated
-        </div>
-      </div>
-    </div>
-
-    <!-- Right column -->
-    <div style="display:flex;flex-direction:column;gap:1rem;">
-
-      <!-- Automation ratio -->
-      <div class="card">
-        <div class="card-title mb-2">Resolution Method</div>
-        <div class="flex gap-3 items-center">
-          <div>
-            <div class="stat-big stat-teal" style="font-size:2rem" id="stat-automated">0</div>
-            <div class="stat-label">Automated</div>
-          </div>
-          <div style="flex:1;height:8px;background:var(--bg-elevated);border-radius:4px;overflow:hidden;">
-            <div style="height:100%;width:75%;background:var(--teal);border-radius:4px;transition:width 1.5s ease"></div>
-          </div>
-          <div>
-            <div class="stat-big" style="font-size:2rem" id="stat-manual">0</div>
-            <div class="stat-label">Manual</div>
-          </div>
-        </div>
-        <div class="text-center mt-2">
-          <span class="font-mono text-teal" style="font-size:1.25rem" id="stat-automated-pct">0%</span>
-          <span class="text-xs text-muted"> automated rate</span>
+        <div class="cmd-bar-right">
+          <span class="text-xs font-mono text-muted">17 APR 2026 · 06:00–06:00 UTC+7</span>
+          <div class="live-dot" style="flex-shrink:0;"></div>
+          <span class="text-xs text-teal" style="font-weight:700;">STREAMING</span>
         </div>
       </div>
 
-      <!-- Resolved by assignee -->
-      <div class="card" style="flex:1;">
-        <div class="card-title mb-3">Resolved by Analyst</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-muted">Jaydon Bator</span>
-              <span class="font-mono">26</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill progress-fill-danger" style="width:100%"></div>
-            </div>
+      <!-- ── Row 1: Big Stat Counters ── -->
+      <div class="grid-5 mb-4">
+
+        <div class="card stat-card-accent" style="border-top-color:var(--critical);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Alerts Ingested</div>
+            <span class="stat-trend stat-trend-danger">↑ +127</span>
           </div>
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-muted">Lindsey Culhane</span>
-              <span class="font-mono">21</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:81%;background:var(--high)"></div>
-            </div>
+          <div class="stat-big stat-critical" id="stat-alerts">0</div>
+          <div class="stat-label">raw events / 24h</div>
+          <div class="stat-subline">AI processes all in real-time</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--teal);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">AI-Prioritized</div>
+            <span class="stat-trend stat-trend-teal">95.3% ↓</span>
           </div>
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-muted">Makenna Stanton</span>
-              <span class="font-mono">13</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:50%;background:var(--medium)"></div>
-            </div>
+          <div class="stat-big stat-teal" id="stat-incidents">0</div>
+          <div class="stat-label">incidents after noise reduction</div>
+          <div class="stat-subline">from 2,742 raw alerts</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--low);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Resolved</div>
+            <span class="stat-trend stat-trend-good">79% rate</span>
           </div>
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-muted">AI Automation</span>
-              <span class="font-mono text-teal">43</span>
+          <div class="stat-big stat-low" id="stat-resolved">0</div>
+          <div class="stat-label">incidents closed</div>
+          <div class="stat-subline">103 of 130 incidents</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--high);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Open Incidents</div>
+            <span class="stat-trend stat-trend-danger">↑ needs action</span>
+          </div>
+          <div class="stat-big stat-high" id="stat-open">0</div>
+          <div class="stat-label">require analyst attention</div>
+          <div class="stat-subline">3 critical · 12 high · 12 other</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--medium);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Events Prevented</div>
+            <span class="stat-trend stat-trend-teal">AI auto</span>
+          </div>
+          <div class="stat-big stat-teal" style="font-size:1.75rem" id="stat-prevented">0</div>
+          <div class="stat-label">blocked by AI automation</div>
+          <div class="stat-subline">since exercise start</div>
+        </div>
+      </div>
+
+      <!-- ── Row 2: Sankey + Right Panel ── -->
+      <div style="display:grid;grid-template-columns:1fr 240px;gap:1rem;margin-bottom:1rem;">
+
+        <!-- Sankey flow -->
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:1rem 1.25rem 0.75rem;" class="flex justify-between items-center">
+            <div>
+              <div class="card-title-large">Alert → Incident Flow</div>
+              <div class="text-xs text-muted mt-1">Data sources → AI processing → resolution pipeline</div>
             </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:100%"></div>
+            <span class="badge badge-teal" style="font-size:0.6875rem;">AI Noise Reduction: 95.3%</span>
+          </div>
+          <div class="sankey-canvas-wrap" id="aicore-wrap" style="height:460px;">
+            <svg id="sankey-svg"></svg>
+          </div>
+          <div class="flex gap-5 mt-0" style="justify-content:center;padding:0.75rem 1.25rem;border-top:1px solid var(--border);background:rgba(0,0,0,0.1);flex-wrap:wrap;">
+            <div class="flex gap-2 items-center text-xs text-muted">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--teal);opacity:0.8;"></div>
+              Alerts flowing in (2,742)
+            </div>
+            <div class="flex gap-2 items-center text-xs text-muted">
+              <div style="width:22px;height:22px;border-radius:50%;border:1.5px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:10px;">🤖</div>
+              AI Filter (95.3% noise reduction)
+            </div>
+            <div class="flex gap-2 items-center text-xs text-muted">
+              <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;opacity:0.8;"></div>
+              Auto-resolved (97 incidents)
+            </div>
+            <div class="flex gap-2 items-center text-xs text-muted">
+              <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;opacity:0.8;"></div>
+              Manual review (33)
+            </div>
+            <div class="flex gap-2 items-center text-xs text-muted">
+              <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;opacity:0.8;"></div>
+              Open / escalated (27)
             </div>
           </div>
         </div>
+
+        <!-- Right column -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+
+          <!-- Resolution method -->
+          <div class="card" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.15);">
+            <div class="card-title mb-3">Resolution Method</div>
+            <div class="flex justify-between items-end mb-2">
+              <div>
+                <div class="stat-big stat-teal" style="font-size:1.875rem;line-height:1;" id="stat-automated">0</div>
+                <div class="stat-label mt-1">Auto</div>
+              </div>
+              <div style="font-size:1.625rem;font-weight:700;font-family:var(--font-mono);color:var(--teal);line-height:1;" id="stat-automated-pct">0%</div>
+              <div class="text-right">
+                <div class="stat-big" style="font-size:1.875rem;line-height:1;" id="stat-manual">0</div>
+                <div class="stat-label mt-1 text-right">Manual</div>
+              </div>
+            </div>
+            <div style="height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;">
+              <div id="automation-bar" style="height:100%;width:0%;background:var(--teal);border-radius:3px;transition:width 1.5s ease;"></div>
+            </div>
+            <div class="text-xs text-muted mt-2 text-center">automation rate</div>
+          </div>
+
+          <!-- Resolved by Assignee -->
+          <div class="card" style="flex:1;">
+            <div class="card-title mb-3">Resolved by Analyst</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-muted">Jaydon Bator</span>
+                  <span class="font-mono text-critical">26</span>
+                </div>
+                <div style="height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
+                  <div style="height:100%;width:100%;background:var(--critical);border-radius:2px;opacity:0.6;"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-muted">Lindsey Culhane</span>
+                  <span class="font-mono" style="color:var(--high);">21</span>
+                </div>
+                <div style="height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
+                  <div style="height:100%;width:81%;background:var(--high);border-radius:2px;opacity:0.6;"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-muted">Makenna Stanton</span>
+                  <span class="font-mono" style="color:var(--medium);">13</span>
+                </div>
+                <div style="height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
+                  <div style="height:100%;width:50%;background:var(--medium);border-radius:2px;opacity:0.6;"></div>
+                </div>
+              </div>
+              <div style="border-top:1px solid var(--border);padding-top:8px;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span style="color:var(--teal);font-weight:600;">🤖 AI Automation</span>
+                  <span class="font-mono text-teal">43</span>
+                </div>
+                <div style="height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
+                  <div style="height:100%;width:100%;background:var(--teal);border-radius:2px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-    </div>
-  </div>
+      <!-- ── Row 3: MITRE + Data Inventory + Log/Severity ── -->
+      <div style="display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
 
-  <!-- ── Row 3: MITRE ATT&CK + Data Ingestion + Live Log ── -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <!-- MITRE ATT&CK -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:0.875rem;">
+            <div>
+              <div class="card-title-large">MITRE ATT&CK®</div>
+              <div class="text-xs text-muted mt-1">27 open incidents · Day 3 techniques</div>
+            </div>
+            <span class="badge badge-muted">Distribution</span>
+          </div>
+          <div id="mitre-chart"></div>
+        </div>
 
-    <!-- MITRE ATT&CK -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">MITRE ATT&CK® Distribution</div>
-        <span class="badge badge-muted">27 Open Incidents</span>
-      </div>
-      <div id="mitre-chart"></div>
-    </div>
+        <!-- Data Inventory -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:0.875rem;">
+            <div>
+              <div class="card-title-large">Data Inventory</div>
+              <div class="text-xs text-muted mt-1">78 active sources · 62 TB / 24h</div>
+            </div>
+            <span class="badge badge-teal">INGESTING</span>
+          </div>
+          <div class="source-list-v2">
 
-    <!-- Data Ingestion Sources -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Data Inventory</div>
-        <span class="badge badge-muted">78 Sources</span>
-      </div>
-      <div class="source-list">
-        <div class="source-row">
-          <span style="font-size:16px;">🖥</span>
-          <span class="source-name">41.7K Endpoints</span>
-          <span class="source-vol">56.3 TB/24H <span class="sparkline"></span></span>
-        </div>
-        <div class="source-row">
-          <span style="font-size:16px;">🔥</span>
-          <span class="source-name">NGFW</span>
-          <span class="source-vol">3.1 TB/24H <span class="sparkline"></span></span>
-        </div>
-        <div class="source-row">
-          <span style="font-size:16px;">☁</span>
-          <span class="source-name">Google Cloud</span>
-          <span class="source-vol">2.6 TB/24H <span class="sparkline"></span></span>
-        </div>
-        <div class="source-row">
-          <span style="font-size:16px;">☁</span>
-          <span class="source-name">Amazon AWS</span>
-          <span class="source-vol">2.6 TB/24H <span class="sparkline"></span></span>
-        </div>
-        <div class="source-row">
-          <span style="font-size:16px;">🔷</span>
-          <span class="source-name">Microsoft Azure</span>
-          <span class="source-vol">238.4 GB/24H <span class="sparkline"></span></span>
-        </div>
-        <div class="source-row">
-          <span style="font-size:16px;">📧</span>
-          <span class="source-name">Office 365</span>
-          <span class="source-vol highlight">201.6 GB/24H <span style="color:var(--critical)">●</span></span>
-        </div>
-        <div class="source-row">
-          <span style="font-size:16px;">🔒</span>
-          <span class="source-name">Proofpoint</span>
-          <span class="source-vol">5.5 GB/24H <span class="sparkline"></span></span>
-        </div>
-        <div class="source-row">
-          <span style="font-size:16px;">🔑</span>
-          <span class="source-name">Okta</span>
-          <span class="source-vol">2.5 GB/24H <span class="sparkline"></span></span>
-        </div>
-        <div class="source-row" style="opacity:0.6;">
-          <span style="font-size:16px;">⊞</span>
-          <span class="source-name text-muted">+68 more sources</span>
-          <span class="source-vol">9 GB/24H</span>
-        </div>
-      </div>
-    </div>
+            <div class="source-row-v2">
+              <div class="source-icon-badge" style="background:rgba(0,212,216,0.12);color:var(--teal);">🖥</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name">Endpoints · 41,700</span>
+                  <span class="font-mono" style="color:var(--teal);font-size:0.625rem;">56.3 TB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="100%" style="background:var(--teal);"></div></div>
+              </div>
+              <span class="sparkline"></span>
+            </div>
 
-    <!-- Live Log + Open Incidents -->
-    <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div class="source-row-v2">
+              <div class="source-icon-badge" style="background:rgba(239,68,68,0.1);color:var(--critical);">🔥</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name">NGFW</span>
+                  <span class="font-mono" style="font-size:0.625rem;">3.1 TB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="62%" style="background:var(--high);"></div></div>
+              </div>
+              <span class="sparkline"></span>
+            </div>
 
-      <!-- Automation recommendation -->
-      <div class="card" style="background:rgba(0,212,216,0.05);border-color:rgba(0,212,216,0.2);">
-        <div class="flex items-center gap-3 mb-2">
-          <span style="font-size:1.5rem;">🤖</span>
-          <div>
-            <div style="font-size:1.25rem;font-weight:700;color:var(--teal)">20</div>
-            <div class="stat-label">Can be automated</div>
+            <div class="source-row-v2">
+              <div class="source-icon-badge" style="background:rgba(59,130,246,0.1);color:var(--info);">☁</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name">Google Cloud</span>
+                  <span class="font-mono" style="font-size:0.625rem;">2.6 TB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="55%" style="background:var(--info);"></div></div>
+              </div>
+              <span class="sparkline"></span>
+            </div>
+
+            <div class="source-row-v2">
+              <div class="source-icon-badge" style="background:rgba(245,158,11,0.1);color:var(--medium);">☁</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name">Amazon AWS</span>
+                  <span class="font-mono" style="font-size:0.625rem;">2.6 TB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="55%" style="background:var(--medium);"></div></div>
+              </div>
+              <span class="sparkline"></span>
+            </div>
+
+            <div class="source-row-v2">
+              <div class="source-icon-badge" style="background:rgba(0,120,212,0.1);color:#0078d4;">🔷</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name">Microsoft Azure</span>
+                  <span class="font-mono" style="font-size:0.625rem;">238 GB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="38%" style="background:#0078d4;"></div></div>
+              </div>
+              <span class="sparkline"></span>
+            </div>
+
+            <div class="source-row-v2" style="border:1px solid rgba(239,68,68,0.25);background:rgba(239,68,68,0.04);border-radius:6px;padding:6px 8px;">
+              <div class="source-icon-badge" style="background:rgba(239,68,68,0.12);color:var(--critical);">📧</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name" style="color:var(--critical);">Office 365 <span style="font-size:0.5625rem;background:rgba(239,68,68,0.15);padding:1px 4px;border-radius:3px;margin-left:4px;">ALERT</span></span>
+                  <span class="font-mono" style="font-size:0.625rem;color:var(--critical);">201 GB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="32%" style="background:var(--critical);"></div></div>
+              </div>
+            </div>
+
+            <div class="source-row-v2">
+              <div class="source-icon-badge" style="background:rgba(139,92,246,0.1);color:#8b5cf6;">🔒</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name">Proofpoint</span>
+                  <span class="font-mono" style="font-size:0.625rem;">5.5 GB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="18%" style="background:#8b5cf6;"></div></div>
+              </div>
+            </div>
+
+            <div class="source-row-v2">
+              <div class="source-icon-badge" style="background:rgba(6,182,212,0.1);color:#06b6d4;">🔑</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="source-name">Okta</span>
+                  <span class="font-mono" style="font-size:0.625rem;">2.5 GB</span>
+                </div>
+                <div class="vol-bar-wrap"><div class="vol-bar-fill" data-width="12%" style="background:#06b6d4;"></div></div>
+              </div>
+            </div>
+
+            <div class="source-row-v2" style="opacity:0.5;">
+              <div class="source-icon-badge" style="background:var(--bg-elevated);color:var(--text-muted);">⊞</div>
+              <div style="flex:1;min-width:0;">
+                <div class="flex justify-between text-xs">
+                  <span class="source-name text-muted">+68 more sources</span>
+                  <span class="font-mono text-muted" style="font-size:0.625rem;">9 GB</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-        <div class="text-xs text-muted">By 10 AI recommendations — click to review playbooks</div>
+
+        <!-- Live Log + Severity + AI Recommend -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+
+          <!-- Severity breakdown tiles -->
+          <div class="card">
+            <div class="card-title mb-3">Open Incidents by Severity</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+              <div class="severity-tile" style="border-top-color:var(--critical);">
+                <div class="font-mono" style="font-size:1.5rem;color:var(--critical);line-height:1;">3</div>
+                <div style="font-size:0.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--critical);margin-top:3px;">Critical</div>
+              </div>
+              <div class="severity-tile" style="border-top-color:var(--high);">
+                <div class="font-mono" style="font-size:1.5rem;color:var(--high);line-height:1;">12</div>
+                <div style="font-size:0.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--high);margin-top:3px;">High</div>
+              </div>
+              <div class="severity-tile" style="border-top-color:var(--medium);">
+                <div class="font-mono" style="font-size:1.5rem;color:var(--medium);line-height:1;">8</div>
+                <div style="font-size:0.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--medium);margin-top:3px;">Medium</div>
+              </div>
+              <div class="severity-tile" style="border-top-color:var(--low);">
+                <div class="font-mono" style="font-size:1.5rem;color:var(--low);line-height:1;">4</div>
+                <div style="font-size:0.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--low);margin-top:3px;">Low</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Automation Recommendation -->
+          <div class="card" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+            <div class="flex items-center gap-3 mb-2">
+              <div style="width:40px;height:40px;background:var(--teal-glow);border:1px solid rgba(0,212,216,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">🤖</div>
+              <div>
+                <div style="font-size:1.5rem;font-weight:700;color:var(--teal);line-height:1;">20</div>
+                <div class="stat-label mt-1">Can be automated</div>
+              </div>
+            </div>
+            <div class="text-xs text-muted" style="line-height:1.6;">
+              10 AI playbooks ready — review recommended actions in the triage module.
+            </div>
+          </div>
+
+          <!-- Live log -->
+          <div class="card" style="flex:1;">
+            <div class="flex justify-between items-center mb-2">
+              <div class="card-title">Live Event Log</div>
+              <div class="flex items-center gap-2">
+                <div class="live-dot"></div>
+                <span class="text-xs text-muted">streaming</span>
+              </div>
+            </div>
+            <div class="log-feed" id="log-feed"></div>
+          </div>
+
+        </div>
       </div>
 
-      <!-- Open incidents severity breakdown -->
-      <div class="card">
-        <div class="card-title mb-3">Open Incidents by Severity</div>
-        <div class="flex gap-3 justify-between">
-          <div class="text-center">
-            <div class="badge badge-critical mb-1">C</div>
-            <div class="font-mono" style="font-size:1.25rem;color:var(--critical)">3</div>
+      <!-- ── Row 4: Incident Queue + Rules Feed + Actors ── -->
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 0.8fr;gap:1rem;margin-bottom:1rem;" id="lower-grid">
+
+        <!-- Incident Queue -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:0.875rem;">
+            <div>
+              <div class="card-title-large">Incident Queue</div>
+              <div class="text-xs text-muted mt-1">Click any row to investigate · 8 open incidents</div>
+            </div>
+            <span class="badge badge-critical">8 OPEN</span>
           </div>
-          <div class="text-center">
-            <div class="badge badge-high mb-1">H</div>
-            <div class="font-mono" style="font-size:1.25rem;color:var(--high)">12</div>
+          <div id="incident-queue-list"></div>
+        </div>
+
+        <!-- Detection Rules Feed -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:0.875rem;">
+            <div>
+              <div class="card-title-large">Detection Rules</div>
+              <div class="text-xs text-muted mt-1">Active AI + behavioral rules</div>
+            </div>
+            <span class="badge badge-teal">6 RULES</span>
           </div>
-          <div class="text-center">
-            <div class="badge badge-medium mb-1">M</div>
-            <div class="font-mono" style="font-size:1.25rem;color:var(--medium)">8</div>
+          <div id="rules-feed-list"></div>
+        </div>
+
+        <!-- Threat Actors -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom:0.875rem;">
+            <div>
+              <div class="card-title-large">Threat Actors</div>
+              <div class="text-xs text-muted mt-1">Active in this exercise</div>
+            </div>
+            <span class="badge badge-medium">3 ACTIVE</span>
           </div>
-          <div class="text-center">
-            <div class="badge badge-low mb-1">L</div>
-            <div class="font-mono" style="font-size:1.25rem;color:var(--low)">4</div>
-          </div>
+          <div id="actor-panel-list"></div>
+        </div>
+
+      </div>
+
+      <!-- ── Row 5: Training Modules ── -->
+      <div class="card mt-4" style="background:rgba(0,212,216,0.02);border-color:rgba(0,212,216,0.15);">
+        <div class="flex justify-between items-center mb-3">
+          <div class="card-title-large">Training Modules — Start Here</div>
+          <div class="text-xs text-muted">Complete in order for best results</div>
+        </div>
+        <div class="grid-4">
+          <a href="triage.html" style="text-decoration:none;">
+            <div class="module-launch-card" style="border-color:rgba(0,212,216,0.3);background:var(--teal-glow);">
+              <div class="module-step">1</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">⚡</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Alert Triage</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Classify 20 real alerts. Experience AI-assisted prioritization and discover the noise problem.</div>
+              <span class="badge badge-beginner">Beginner · ~15 min</span>
+            </div>
+          </a>
+          <a href="investigate.html" style="text-decoration:none;">
+            <div class="module-launch-card">
+              <div class="module-step">2</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">🔍</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Incident Investigation</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Walk through 5 full attack scenarios drawn directly from Day 3 — polymorphic malware, deepfakes, and more.</div>
+              <span class="badge badge-beginner">Beginner · ~25 min</span>
+            </div>
+          </a>
+          <a href="remediate.html" style="text-decoration:none;">
+            <div class="module-launch-card">
+              <div class="module-step">3</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">🛠</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Remediation Lab</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Quarantine endpoints, block IPs, manage ports on a live network map. Every action has a consequence.</div>
+              <span class="badge badge-intermediate">Intermediate · ~20 min</span>
+            </div>
+          </a>
+          <a href="scenarios.html" style="text-decoration:none;">
+            <div class="module-launch-card">
+              <div class="module-step">4</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">📋</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Scenario Library</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">5 full scenarios — polymorphic malware, prompt injection, deepfake fraud, agentic AI, and supply chain attacks.</div>
+              <span class="badge badge-beginner">All Levels</span>
+            </div>
+          </a>
         </div>
       </div>
 
-      <!-- Live log -->
-      <div class="card" style="flex:1;">
-        <div class="card-header">
-          <div class="card-title">Live Event Log</div>
-          <div class="flex items-center gap-2">
-            <div class="live-dot"></div>
-            <span class="text-xs text-muted">streaming</span>
-          </div>
-        </div>
-        <div class="log-feed" id="log-feed"></div>
+      <!-- Footer -->
+      <div class="text-center text-xs text-muted mt-4" style="padding-bottom:2rem;">
+        SENTINEL SOC Simulator · DCOI Thailand · Day 3 — AI-Enabled SIEM/SOC ·
+        All data is simulated for training purposes only.
       </div>
 
-    </div>
-  </div>
+    </div><!-- #view-command -->
 
-  <!-- ── Row 4: Quick-start module buttons ── -->
-  <div class="card mt-4">
-    <div class="card-title mb-3">Training Modules — Start Here</div>
-    <div class="grid-4">
-      <a href="triage.html" style="text-decoration:none;">
-        <div class="card" style="border-color:rgba(0,212,216,0.3);background:var(--teal-glow);text-align:center;padding:1.5rem;">
-          <div style="font-size:2rem;margin-bottom:8px;">⚡</div>
-          <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Alert Triage</div>
-          <div class="text-xs text-muted">Classify 20 real alerts. Experience AI-assisted prioritization.</div>
-          <div class="badge badge-beginner mt-3">Beginner</div>
-        </div>
-      </a>
-      <a href="investigate.html" style="text-decoration:none;">
-        <div class="card" style="text-align:center;padding:1.5rem;">
-          <div style="font-size:2rem;margin-bottom:8px;">🔍</div>
-          <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Incident Investigation</div>
-          <div class="text-xs text-muted">Walk through 5 attack scenarios from your Day 3 course.</div>
-          <div class="badge badge-beginner mt-3">Beginner</div>
-        </div>
-      </a>
-      <a href="remediate.html" style="text-decoration:none;">
-        <div class="card" style="text-align:center;padding:1.5rem;">
-          <div style="font-size:2rem;margin-bottom:8px;">🛠</div>
-          <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Remediation Lab</div>
-          <div class="text-xs text-muted">Quarantine endpoints, block IPs, manage ports on a live network.</div>
-          <div class="badge badge-intermediate mt-3">Intermediate</div>
-        </div>
-      </a>
-      <a href="scenarios.html" style="text-decoration:none;">
-        <div class="card" style="text-align:center;padding:1.5rem;">
-          <div style="font-size:2rem;margin-bottom:8px;">📋</div>
-          <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Scenario Library</div>
-          <div class="text-xs text-muted">5 full scenarios — polymorphic malware, deepfakes, agentic AI, and more.</div>
-          <div class="badge badge-beginner mt-3">All Levels</div>
-        </div>
-      </a>
-    </div>
-  </div>
+    <!-- Incidents flow view (populated by Slice 4) -->
+    <div id="view-incidents" style="display:none;"></div>
 
-  <!-- Footer -->
-  <div class="text-center text-xs text-muted mt-4" style="padding-bottom:2rem;">
-    SENTINEL SOC Simulator · DCOI Thailand · Day 3 — AI-Enabled SIEM/SOC ·
-    All data is simulated for training purposes only.
-  </div>
+  </div><!-- .main -->
+</div><!-- .app -->
 
-</div>
+<!-- Tweaks Panel toggle button (instructor controls) -->
+<button id="tweaks-toggle-btn" title="Instructor Controls" onclick="SENTINEL_TWEAKS.toggle()"
+  style="position:fixed;bottom:20px;right:20px;z-index:500;width:40px;height:40px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.4);transition:color .2s,border-color .2s;"
+  onmouseenter="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'"
+  onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">⚙</button>
 
+<!-- Tweaks Panel container (populated by initTweaksPanel) -->
+<div id="tweaks-panel" style="display:none;"></div>
+
+<script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script src="js/dashboard.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    SENTINEL.initFirstVisit(true);
+  });
+</script>
 </body>
 </html>

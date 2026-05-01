@@ -45,14 +45,15 @@ const SENTINEL = {
 
   /* ── Active nav link ── */
   markActiveNav() {
+    const pageId = this._getPageId ? this._getPageId() : 'dashboard';
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      item.classList.toggle('active', item.dataset.page === pageId);
+    });
+    // legacy horizontal nav fallback
     const page = window.location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('.nav-link').forEach(link => {
       const href = link.getAttribute('href');
-      if (href === page || (page === 'index.html' && href === 'index.html') || (page === '' && href === 'index.html')) {
-        link.classList.add('active');
-      } else {
-        link.classList.remove('active');
-      }
+      link.classList.toggle('active', href === page || (page === '' && href === 'index.html'));
     });
   },
 
@@ -190,8 +191,387 @@ const LIVE_LOG = {
   }
 };
 
+/* ── Student identity ── */
+SENTINEL.getStudentName = function() {
+  return localStorage.getItem('sentinel_student_name') || null;
+};
+
+SENTINEL.setStudentName = function(name) {
+  localStorage.setItem('sentinel_student_name', name.trim());
+  this.updateNavScore();
+};
+
+SENTINEL.updateNavScore = function() {
+  const p = this.getProgress();
+  const score = (p.totalScore || 0) + ' pts';
+  const name = this.getStudentName() || 'Analyst';
+
+  // legacy horizontal nav
+  const scoreEl = document.getElementById('nav-score');
+  if (scoreEl) scoreEl.textContent = score;
+  const nameEl = document.getElementById('nav-student-name');
+  if (nameEl) nameEl.textContent = name;
+
+  // new sidebar user card
+  const sbScore = document.getElementById('sb-score');
+  if (sbScore) sbScore.textContent = score;
+  const sbName = document.getElementById('sb-name');
+  if (sbName) sbName.textContent = name;
+  const sbAvatar = document.getElementById('sb-avatar');
+  if (sbAvatar) {
+    sbAvatar.textContent = name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
+  }
+  // topbar score pill
+  const tbScore = document.getElementById('topbar-score');
+  if (tbScore) tbScore.textContent = score;
+};
+
+/* ── Name entry modal ── */
+SENTINEL.showNameModal = function() {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.id = 'name-modal';
+    overlay.style.cssText = [
+      'position:fixed;inset:0;z-index:900',
+      'display:flex;align-items:center;justify-content:center',
+      'background:radial-gradient(circle at 50% 40%,rgba(94,234,212,.09),transparent 55%),var(--bg-0)',
+      'padding:24px',
+    ].join(';');
+
+    overlay.innerHTML = `
+      <div style="width:100%;max-width:460px;background:var(--bg-1);border:1px solid var(--line-strong);border-radius:14px;padding:36px;box-shadow:0 24px 60px rgba(0,0,0,.55);text-align:center;">
+
+        <!-- Logo block -->
+        <div style="width:56px;height:56px;margin:0 auto 20px;border-radius:14px;background:linear-gradient(135deg,var(--teal),var(--teal-deep,#0d9488));display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 0 0 1px rgba(94,234,212,.4) inset,0 8px 24px rgba(94,234,212,.25);">
+          <div style="position:absolute;inset:12px;border:2px solid rgba(0,0,0,.4);border-radius:5px;border-top-color:transparent;transform:rotate(-12deg);"></div>
+        </div>
+
+        <div style="font-size:22px;font-weight:700;letter-spacing:.06em;color:var(--text-primary);margin-bottom:4px;">SENTINEL</div>
+        <div style="font-size:11px;color:var(--teal);letter-spacing:.18em;text-transform:uppercase;margin-bottom:22px;">SOC Simulator · DCOI Day 3</div>
+
+        <!-- Live alert counter -->
+        <div style="margin-bottom:20px;padding:10px 16px;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:10px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;">Alerts · Live</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);animation:pulse 1.4s ease-in-out infinite;"></div>
+            <span id="login-alert-count" style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--teal);">2,742</span>
+          </div>
+        </div>
+
+        <div style="font-size:18px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Welcome, Analyst.</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:26px;">
+          Enter your name or callsign to begin.<br>Your score saves automatically to this device.
+        </div>
+
+        <input id="name-input" type="text"
+          placeholder="e.g. Capt Best · Team Alpha · SGT Williams"
+          maxlength="40" autocomplete="off" autocorrect="off" spellcheck="false"
+          style="width:100%;box-sizing:border-box;padding:12px 14px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:8px;color:var(--text-primary);font-family:var(--font-ui);font-size:14px;margin-bottom:16px;text-align:center;letter-spacing:.02em;outline:none;">
+
+        <button id="name-submit-btn" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px 14px;font-size:13px;">
+          Begin Training →
+        </button>
+
+        <div style="font-size:10px;color:var(--text-dim);margin-top:18px;line-height:1.5;">
+          All data simulated for training purposes. Score stored locally only.
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+
+    /* Live alert counter — setInterval so it works in background tabs */
+    const startVal = 2742, startT = Date.now();
+    const ratePerMin = 9;
+    const counterEl = overlay.querySelector('#login-alert-count');
+    const counterInt = setInterval(() => {
+      if (!counterEl || !document.body.contains(counterEl)) { clearInterval(counterInt); return; }
+      const elapsedMin = (Date.now() - startT) / 60000;
+      const val = Math.floor(startVal + elapsedMin * ratePerMin + Math.sin(Date.now() / 3000) * 1.2);
+      counterEl.textContent = val.toLocaleString();
+    }, 200);
+
+    const input = overlay.querySelector('#name-input');
+    const btn   = overlay.querySelector('#name-submit-btn');
+    input.focus();
+
+    input.addEventListener('focus', () => { input.style.borderColor = 'var(--teal)'; });
+    input.addEventListener('blur',  () => { input.style.borderColor = 'var(--line-strong)'; });
+
+    const submit = () => {
+      const val = input.value.trim();
+      if (!val) { input.style.borderColor = 'var(--critical)'; input.focus(); return; }
+      clearInterval(counterInt);
+      SENTINEL.setStudentName(val);
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 0.2s';
+      setTimeout(() => { overlay.remove(); resolve(val); }, 200);
+    };
+
+    btn.addEventListener('click', submit);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+  });
+};
+
+/* ── Intro / orientation modal ── */
+SENTINEL.showIntroModal = function(studentName) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'intro-modal';
+    overlay.innerHTML = `
+      <div class="modal-box modal-wide">
+        <div style="margin-bottom:1.25rem;">
+          <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--teal);margin-bottom:6px;">
+            MISSION BRIEFING
+          </div>
+          <div class="modal-title">Welcome, <span style="color:var(--teal);">${studentName}</span>.</div>
+          <div class="modal-subtitle" style="margin-top:4px;line-height:1.6;">
+            SENTINEL simulates a real AI-enabled Security Operations Center (SOC). You'll triage live alerts,
+            investigate five attack scenarios from today's lesson, and take hands-on remediation action
+            against a network under attack.
+          </div>
+        </div>
+
+        <div style="background:var(--bg-primary);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.25rem;">
+          <div class="text-xs text-muted mb-2" style="font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">
+            Recommended Order
+          </div>
+          <div class="intro-modules">
+            <div class="intro-module-card">
+              <div class="intro-module-num">1</div>
+              <div>
+                <div class="intro-module-name">⚡ Alert Triage</div>
+                <div class="intro-module-desc">Classify 20 real alerts. See what AI catches vs. what humans miss. ~45 min</div>
+              </div>
+            </div>
+            <div class="intro-module-card">
+              <div class="intro-module-num">2</div>
+              <div>
+                <div class="intro-module-name">🦠 Polymorphic Payload</div>
+                <div class="intro-module-desc">AI malware that defeats signature AV. ~20 min</div>
+              </div>
+            </div>
+            <div class="intro-module-card">
+              <div class="intro-module-num">3</div>
+              <div>
+                <div class="intro-module-name">📧 The Email Summarizer</div>
+                <div class="intro-module-desc">Zero-click prompt injection attack. ~20 min</div>
+              </div>
+            </div>
+            <div class="intro-module-card">
+              <div class="intro-module-num">4</div>
+              <div>
+                <div class="intro-module-name">🛠 Remediation Lab</div>
+                <div class="intro-module-desc">Quarantine nodes, block ports, stop the breach. ~25 min</div>
+              </div>
+            </div>
+            <div class="intro-module-card">
+              <div class="intro-module-num">5</div>
+              <div>
+                <div class="intro-module-name">🎭 🤖 📦 More Scenarios</div>
+                <div class="intro-module-desc">Deepfake fraud, agentic AI, supply chain. ~60 min</div>
+              </div>
+            </div>
+            <div class="intro-module-card" style="background:rgba(0,212,216,0.06);border-color:rgba(0,212,216,0.2);">
+              <div class="intro-module-num" style="background:var(--medium);color:#000;">💡</div>
+              <div>
+                <div class="intro-module-name" style="color:var(--teal);">Cross-links</div>
+                <div class="intro-module-desc">Alerts in Triage connect to Investigation scenarios. Watch for the 🔗 callouts.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:1.25rem;font-size:0.8125rem;color:var(--medium);">
+          ⏱ Full completion: ~3 hours across all modules. Your progress saves automatically to this browser.
+        </div>
+
+        <div class="flex gap-3">
+          <a href="triage.html" class="btn btn-primary btn-lg" style="flex:1;justify-content:center;" onclick="closeIntroModal()">
+            ⚡ Start with Alert Triage
+          </a>
+          <button onclick="closeIntroModal()" class="btn btn-secondary btn-lg">
+            Explore Dashboard
+          </button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    window._closeIntroModal = () => {
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 0.2s';
+      setTimeout(() => { overlay.remove(); resolve(); }, 200);
+    };
+    window.closeIntroModal = window._closeIntroModal;
+  });
+};
+
+/* ── Score export ── */
+SENTINEL.generateScoreCode = function() {
+  const name = (this.getStudentName() || 'ANON').toUpperCase().replace(/\s+/g, '-').slice(0, 12);
+  const p = this.getProgress();
+  const date = new Date();
+  const dateStr = date.getDate().toString().padStart(2,'0') +
+                  ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][date.getMonth()] +
+                  date.getFullYear().toString().slice(2);
+  const triage  = p.triageCompleted ? `T${p.triageScore || 0}` : 'T--';
+  const scns    = `SCN${(p.scenariosCompleted || []).length}/5`;
+  const pts     = (p.totalScore || 0);
+  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${pts}PTS`;
+};
+
+SENTINEL.copyScoreCode = function() {
+  const code = this.generateScoreCode();
+  const box  = document.getElementById('score-code-display');
+  navigator.clipboard.writeText(code).then(() => {
+    if (box) { box.classList.add('score-code-copied'); setTimeout(() => box.classList.remove('score-code-copied'), 2000); }
+    this.toast('Score code copied to clipboard!', 'success');
+  }).catch(() => {
+    this.toast('Copy the code manually from the box above', 'info');
+  });
+};
+
+/* ── Cross-reference map: alert IDs ↔ scenario IDs ── */
+const CROSS_REFS = {
+  alertToScenario: {
+    1:  { id: 'scenario-1', name: 'Polymorphic Payload' },
+    6:  { id: 'scenario-1', name: 'Polymorphic Payload' },
+    7:  { id: 'scenario-1', name: 'Polymorphic Payload' },
+    16: { id: 'scenario-1', name: 'Polymorphic Payload' },
+    3:  { id: 'scenario-2', name: 'The Email Summarizer' },
+    11: { id: 'scenario-2', name: 'The Email Summarizer' },
+    5:  { id: 'scenario-3', name: 'Ghost Wire Transfer' },
+    12: { id: 'scenario-4', name: 'Autonomous Recon' },
+    8:  { id: 'scenario-5', name: 'Tainted Update' },
+    19: { id: 'scenario-5', name: 'Tainted Update' },
+    9:  { id: 'scenario-1', name: 'Polymorphic Payload' }
+  },
+  scenarioToAlertIds: {
+    'scenario-1': [1, 6, 7, 9, 16],
+    'scenario-2': [3, 11],
+    'scenario-3': [5],
+    'scenario-4': [12],
+    'scenario-5': [8, 19]
+  }
+};
+
+/* ── Page ID detection ── */
+SENTINEL._getPageId = function() {
+  const raw = window.location.pathname.split('/').pop() || 'index.html';
+  const page = raw.includes('.') ? raw : (raw || 'index.html') + '.html';
+  return { 'index.html': 'dashboard', 'triage.html': 'triage', 'investigate.html': 'investigate',
+           'remediate.html': 'remediate', 'scenarios.html': 'scenarios' }[page] || 'dashboard';
+};
+
+SENTINEL._escHtml = function(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+};
+
+/* ── App shell injection (sidebar + topbar) ── */
+SENTINEL.renderShell = function() {
+  const PAGE_META = {
+    dashboard:   { name: 'Command Center',  href: 'index.html',      icon: '⊞' },
+    triage:      { name: 'Alert Triage',    href: 'triage.html',     icon: '⚡' },
+    investigate: { name: 'Investigation',   href: 'investigate.html',icon: '🔍' },
+    remediate:   { name: 'Remediation Lab', href: 'remediate.html',  icon: '🛠' },
+    scenarios:   { name: 'Scenario Library',href: 'scenarios.html',  icon: '📋' },
+  };
+  const pageId  = this._getPageId();
+  const current = PAGE_META[pageId];
+  const name    = this.getStudentName() || 'Analyst';
+  const p       = this.getProgress();
+  const score   = (p.totalScore || 0) + ' pts';
+  const initials = name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
+  const firstName = this._escHtml(name.split(' ')[0]);
+  const hour = new Date().getHours();
+  const tod  = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+
+  const navItem = ([id, m]) =>
+    `<a href="${m.href}" class="nav-item${id === pageId ? ' active' : ''}" data-page="${id}">` +
+    `<span class="nav-icon">${m.icon}</span>${m.name}</a>`;
+
+  const sb = document.getElementById('sb');
+  if (sb) {
+    sb.innerHTML = `<aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div><div class="brand-text">SENTINEL</div><div class="brand-sub">SOC Simulator</div></div>
+      </div>
+      <nav style="flex:1;overflow-y:auto;padding:0.25rem 0;">
+        <div class="nav-section-label">OPERATIONS</div>
+        ${navItem(['dashboard', PAGE_META.dashboard])}
+        <div class="nav-section-label" style="margin-top:0.5rem;">TRAINING</div>
+        ${navItem(['triage',      PAGE_META.triage])}
+        ${navItem(['investigate', PAGE_META.investigate])}
+        ${navItem(['remediate',   PAGE_META.remediate])}
+        ${navItem(['scenarios',   PAGE_META.scenarios])}
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-card">
+          <div class="user-avatar" id="sb-avatar">${this._escHtml(initials)}</div>
+          <div>
+            <div class="user-name" id="sb-name">${this._escHtml(name)}</div>
+            <div class="user-role" id="sb-score">${this._escHtml(score)}</div>
+          </div>
+        </div>
+      </div>
+    </aside>`;
+  }
+
+  const tb = document.getElementById('topbar-mount');
+  if (tb) {
+    const incBtn = pageId === 'dashboard'
+      ? `<button id="toggle-incidents-btn" class="pill" style="cursor:pointer;background:none;color:var(--text);font-family:var(--font-ui);font-size:11px;" onclick="SENTINEL.toggleIncidentsView()">Incidents flow ›</button>`
+      : '';
+    tb.innerHTML = `<header class="topbar">
+      <div>
+        <div class="crumb">SENTINEL › <span style="color:var(--text);font-weight:600;">${current.name}</span></div>
+        <div class="greeting">Good ${tod}, <strong>${firstName}</strong></div>
+      </div>
+      <div style="flex:1;"></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="pill live"><span class="dot"></span><span id="topbar-score">${this._escHtml(score)}</span></span>
+        <span class="pill">Last 24H</span>
+        <span class="pill live"><span class="dot"></span>STREAMING</span>
+        ${incBtn}
+        <button class="pill" title="Reset progress" style="cursor:pointer;background:none;color:var(--text-muted);font-family:var(--font-ui);font-size:11px;border-color:var(--line);" onclick="if(confirm('Reset all progress and start over?')){SENTINEL.resetProgress();location.reload();}">⏻</button>
+      </div>
+    </header>`;
+  }
+};
+
+/* ── Incidents view toggle (dashboard only) ── */
+SENTINEL.toggleIncidentsView = function() {
+  const cmd = document.getElementById('view-command');
+  const inc = document.getElementById('view-incidents');
+  const btn = document.getElementById('toggle-incidents-btn');
+  if (!cmd || !inc) return;
+  const showingInc = inc.style.display !== 'none';
+  cmd.style.display = showingInc ? '' : 'none';
+  inc.style.display = showingInc ? 'none' : '';
+  if (btn) btn.textContent = showingInc ? 'Incidents flow ›' : '‹ Command Center';
+  if (!showingInc && !inc.dataset.built) {
+    inc.dataset.built = '1';
+    if (typeof buildIncidentsFlow === 'function') buildIncidentsFlow(inc);
+  }
+};
+
+/* ── First-visit flow ── */
+SENTINEL.initFirstVisit = async function(isDashboard = false) {
+  let name = this.getStudentName();
+  if (!name) {
+    name = await this.showNameModal();
+  }
+  if (isDashboard && !localStorage.getItem('sentinel_intro_seen')) {
+    localStorage.setItem('sentinel_intro_seen', '1');
+    await this.showIntroModal(name);
+  }
+  this.updateNavScore();
+};
+
 /* ── Init on DOM ready ── */
 document.addEventListener('DOMContentLoaded', () => {
+  SENTINEL.renderShell();
   SENTINEL.markActiveNav();
   SENTINEL.updateNavScore();
 });

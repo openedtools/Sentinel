@@ -8,28 +8,10 @@
 </head>
 <body>
 
-<!-- ── Navigation ── -->
-<nav class="nav">
-  <a href="index.html" class="nav-brand">
-    <div class="nav-brand-icon">🛡</div>
-    <div>
-      <div class="nav-brand-name">SENTINEL</div>
-      <div class="nav-brand-sub">SOC Simulator</div>
-    </div>
-  </a>
-  <div class="nav-links">
-    <a href="index.html" class="nav-link">⊞ Command Center</a>
-    <a href="triage.html" class="nav-link">⚡ Alert Triage</a>
-    <a href="investigate.html" class="nav-link">🔍 Investigation</a>
-    <a href="remediate.html" class="nav-link active">🛠 Remediation Lab</a>
-    <a href="scenarios.html" class="nav-link">📋 Scenarios</a>
-  </div>
-  <div class="nav-right">
-    <div class="nav-score-badge">
-      🏆 <span class="score-val" id="nav-score">0 pts</span>
-    </div>
-  </div>
-</nav>
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
 
 <!-- AI Modal -->
 <div id="ai-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;">
@@ -38,7 +20,7 @@
 
 <div class="page">
 
-  <div class="page-header">
+  <div class="page-header" style="margin-top:0;">
     <div>
       <div class="page-title">🛠 Remediation Lab</div>
       <div class="page-subtitle">Active incident in progress. Select nodes on the network diagram and use the action panel to contain the threat.</div>
@@ -197,6 +179,10 @@
 
 </div>
 
+  </div><!-- .main -->
+</div><!-- .app -->
+
+<script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script src="js/remediate.js"></script>
 </body>

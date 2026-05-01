@@ -8,38 +8,22 @@
 </head>
 <body>
 
-<!-- ── Navigation ── -->
-<nav class="nav">
-  <a href="index.html" class="nav-brand">
-    <div class="nav-brand-icon">🛡</div>
-    <div>
-      <div class="nav-brand-name">SENTINEL</div>
-      <div class="nav-brand-sub">SOC Simulator</div>
-    </div>
-  </a>
-  <div class="nav-links">
-    <a href="index.html" class="nav-link">⊞ Command Center</a>
-    <a href="triage.html" class="nav-link">⚡ Alert Triage</a>
-    <a href="investigate.html" class="nav-link active">🔍 Investigation</a>
-    <a href="remediate.html" class="nav-link">🛠 Remediation Lab</a>
-    <a href="scenarios.html" class="nav-link">📋 Scenarios</a>
-  </div>
-  <div class="nav-right">
-    <div class="nav-score-badge">
-      🏆 <span class="score-val" id="nav-score">0 pts</span>
-    </div>
-  </div>
-</nav>
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
 
-<div class="page">
-  <div id="investigation-root">
-    <div class="empty-state">
-      <div class="spinner"></div>
-      <div class="mt-3 text-muted">Loading scenarios...</div>
+    <div id="investigation-root">
+      <div class="empty-state">
+        <div class="spinner"></div>
+        <div class="mt-3 text-muted">Loading scenarios...</div>
+      </div>
     </div>
-  </div>
-</div>
 
+  </div><!-- .main -->
+</div><!-- .app -->
+
+<script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script src="js/investigate.js"></script>
 </body>
