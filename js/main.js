@@ -14,6 +14,10 @@ const SENTINEL = {
         scenariosCompleted: [],
         scenarioScores: {},
         remediationCompleted: false,
+        logsScore: 0,
+        logsCompleted: false,
+        vulnsScore: 0,
+        vulnsCompleted: false,
         totalScore: 0
       };
     } catch { return {}; }
@@ -372,6 +376,20 @@ SENTINEL.showIntroModal = function(studentName) {
                 <div class="intro-module-desc">Deepfake fraud, agentic AI, supply chain. ~60 min</div>
               </div>
             </div>
+            <div class="intro-module-card">
+              <div class="intro-module-num">6</div>
+              <div>
+                <div class="intro-module-name">📜 Log Analysis</div>
+                <div class="intro-module-desc">Click suspicious lines in raw Windows, Linux, and firewall logs. ~30 min</div>
+              </div>
+            </div>
+            <div class="intro-module-card">
+              <div class="intro-module-num">7</div>
+              <div>
+                <div class="intro-module-name">🎯 Vuln Prioritization</div>
+                <div class="intro-module-desc">Build a patch queue from real CVEs across 3 organizations. ~25 min</div>
+              </div>
+            </div>
             <div class="intro-module-card" style="background:rgba(0,212,216,0.06);border-color:rgba(0,212,216,0.2);">
               <div class="intro-module-num" style="background:var(--medium);color:#000;">💡</div>
               <div>
@@ -424,8 +442,10 @@ SENTINEL.generateScoreCode = function() {
                   date.getFullYear().toString().slice(2);
   const triage  = p.triageCompleted ? `T${p.triageScore || 0}` : 'T--';
   const scns    = `SCN${(p.scenariosCompleted || []).length}/5`;
+  const logs    = p.logsCompleted  ? `L${p.logsScore  || 0}` : 'L--';
+  const vulns   = p.vulnsCompleted ? `V${p.vulnsScore  || 0}` : 'V--';
   const pts     = (p.totalScore || 0);
-  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${pts}PTS`;
+  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${pts}PTS`;
 };
 
 SENTINEL.copyScoreCode = function() {
@@ -469,7 +489,8 @@ SENTINEL._getPageId = function() {
   const page = raw.includes('.') ? raw : (raw || 'index.html') + '.html';
   return { 'index.html': 'dashboard', 'incident-response.html': 'incidents',
            'triage.html': 'triage', 'investigate.html': 'investigate',
-           'remediate.html': 'remediate', 'scenarios.html': 'scenarios' }[page] || 'dashboard';
+           'remediate.html': 'remediate', 'scenarios.html': 'scenarios',
+           'logs.html': 'logs', 'vulns.html': 'vulns' }[page] || 'dashboard';
 };
 
 SENTINEL._escHtml = function(str) {
@@ -479,12 +500,14 @@ SENTINEL._escHtml = function(str) {
 /* ── App shell injection (sidebar + topbar) ── */
 SENTINEL.renderShell = function() {
   const PAGE_META = {
-    dashboard:   { name: 'Command Center',    href: 'index.html',             icon: '⊞' },
-    incidents:   { name: 'Incident Response', href: 'incident-response.html', icon: '⚑' },
-    triage:      { name: 'Alert Triage',      href: 'triage.html',            icon: '⚡' },
-    investigate: { name: 'Investigation',     href: 'investigate.html',       icon: '🔍' },
-    remediate:   { name: 'Remediation Lab',   href: 'remediate.html',         icon: '🛠' },
-    scenarios:   { name: 'Scenario Library',  href: 'scenarios.html',         icon: '📋' },
+    dashboard:   { name: 'Command Center',       href: 'index.html',             icon: '⊞' },
+    incidents:   { name: 'Incident Response',    href: 'incident-response.html', icon: '⚑' },
+    triage:      { name: 'Alert Triage',         href: 'triage.html',            icon: '⚡' },
+    investigate: { name: 'Investigation',        href: 'investigate.html',       icon: '🔍' },
+    remediate:   { name: 'Remediation Lab',      href: 'remediate.html',         icon: '🛠' },
+    scenarios:   { name: 'Scenario Library',     href: 'scenarios.html',         icon: '📋' },
+    logs:        { name: 'Log Analysis',         href: 'logs.html',              icon: '📜' },
+    vulns:       { name: 'Vuln Prioritization',  href: 'vulns.html',             icon: '🎯' },
   };
   const pageId  = this._getPageId();
   const current = PAGE_META[pageId];
@@ -521,6 +544,8 @@ SENTINEL.renderShell = function() {
         ${navItem(['investigate', PAGE_META.investigate])}
         ${navItem(['remediate',   PAGE_META.remediate])}
         ${navItem(['scenarios',   PAGE_META.scenarios])}
+        ${navItem(['logs',        PAGE_META.logs])}
+        ${navItem(['vulns',       PAGE_META.vulns])}
       </nav>
       <div class="sidebar-foot">
         <div class="user-card">
