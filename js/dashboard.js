@@ -760,7 +760,13 @@ function buildIncidentsFlow(container) {
     svg.appendChild(c(hitlMidX, hitlMidY, 6, {fill:'var(--bg-1)', stroke:'rgba(94,234,212,0.7)', 'stroke-width':'1.5'}));
     svg.appendChild(c(hitlMidX, hitlMidY, 2.5, {fill:'rgba(94,234,212,0.9)'}));
 
-    /* HITL dashed bridges — pill → AUTOMATED (up) and pill → MANUAL (down) */
+    /* Dashed line: MANUAL node → HITL pill (incoming) */
+    const manToHitl = p(
+      `M ${manualX+14} ${manualY} C ${manualX+100} ${manualY-60}, ${hitlMidX-100} ${hitlMidY+60}, ${hitlMidX} ${hitlMidY}`,
+      {stroke:'rgba(251,146,60,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
+    manToHitl.style.animation = 'dashDrift 2s linear infinite';
+    svg.appendChild(manToHitl);
+
     /* Dashed line: HITL pill → RESOLVED endpoint (teal, up-right) */
     const hitlToAuto = p(
       `M ${hitlMidX} ${hitlMidY} C ${hitlMidX+40} ${hitlMidY-80}, ${resolvedX-60} ${resolvedY+40}, ${resolvedX-10} ${resolvedY}`,
