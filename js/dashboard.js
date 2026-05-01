@@ -756,10 +756,14 @@ function buildIncidentsFlow(container) {
     /* MANUAL → SEVERITY HUB */
     svg.appendChild(p(`M ${manualX+14} ${manualY} C ${manualX+80} ${manualY}, ${sevHubX-80} ${sevHubY}, ${sevHubX-14} ${sevHubY}`,{stroke:'rgba(251,146,60,0.5)','stroke-width':'4',fill:'none'}));
 
-    /* Pill edge connection points (pill is 220px wide, ~40px tall, top at hitlMidY-38) */
-    const pillLeftX  = hitlMidX - 106;
-    const pillRightX = hitlMidX + 106;
-    const pillConnY  = hitlMidY - 17;   // vertical center of the rendered pill
+    /* Pill is rendered as a fixed 212px block at left=(hitlMidX-106), top=(hitlMidY-21)
+       height = 6px padding + 14px line1 + 2px gap + 11px line2 + 6px padding = 39px
+       vertical center = (hitlMidY-21) + 19.5 ≈ hitlMidY - 1 → use hitlMidY */
+    const PILL_W     = 212;
+    const PILL_H     = 46;
+    const pillLeftX  = hitlMidX - PILL_W / 2;
+    const pillRightX = hitlMidX + PILL_W / 2;
+    const pillConnY  = hitlMidY;
 
     /* Small anchor dots on pill edges */
     svg.appendChild(c(pillLeftX,  pillConnY, 3, {fill:'rgba(251,146,60,0.85)'}));
@@ -849,13 +853,12 @@ function buildIncidentsFlow(container) {
       <div style="font-size:9px;letter-spacing:.14em;color:var(--text-muted);margin-top:3px;font-weight:700;">RESOLVED<br>INCIDENTS</div>
     </div>`);
 
-    /* HITL pill — centered on hitlMidX/Y */
-    lbl(hitlMidX - 110, hitlMidY - 38, `<div style="text-align:center;width:220px;">
-      <div style="display:inline-block;background:var(--bg-2);border:1px dashed rgba(94,234,212,.6);border-radius:999px;padding:7px 18px;font-size:11px;white-space:nowrap;color:var(--text-primary);box-shadow:0 0 12px rgba(94,234,212,.1);">
+    /* HITL pill — fixed 212px block, left edge = pillLeftX, top = hitlMidY - PILL_H/2 */
+    lbl(pillLeftX, hitlMidY - Math.round(PILL_H / 2),
+      `<div style="display:block;width:${PILL_W}px;box-sizing:border-box;background:var(--bg-2);border:1px dashed rgba(94,234,212,.7);border-radius:999px;padding:6px 18px;font-size:11px;white-space:nowrap;color:var(--text-primary);box-shadow:0 0 14px rgba(94,234,212,.12);text-align:center;">
         <span style="color:var(--teal);font-weight:700;font-family:var(--font-mono);">20</span> can be automated
         <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">HITL · 10 playbooks ready</div>
-      </div>
-    </div>`);
+      </div>`);
 
     /* OPEN INCIDENTS by severity */
     lbl(sevHubX+78, sevHubY-78, `<div style="width:180px;">
