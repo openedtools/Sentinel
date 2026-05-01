@@ -649,7 +649,7 @@ function buildIncidentsFlow(container) {
 
   function computeLayout(w, h) {
     W = w; H = h;
-    aiX = 130; aiY = H * 0.5;
+    aiX = 170; aiY = H * 0.5;
     aiR = Math.min(H * 0.26, 110);
     incidentsX = aiX + aiR + 130;
     splitX     = incidentsX + 130;
@@ -657,8 +657,8 @@ function buildIncidentsFlow(container) {
     manualX    = W * 0.6;  manualY = H * 0.78;
     resolvedX  = W * 0.86; resolvedY = H * 0.18;
     sevHubX    = W * 0.86; sevHubY   = H * 0.78;
-    hitlMidX   = (manualX + sevHubX) * 0.5 - 30;
-    hitlMidY   = manualY - 30;
+    hitlMidX   = autoX + 90;
+    hitlMidY   = (autoY + manualY) * 0.5;
     hitlBackX  = (autoX + resolvedX) * 0.5;
     hitlBackY  = autoY;
   }
@@ -756,15 +756,22 @@ function buildIncidentsFlow(container) {
     /* MANUAL → SEVERITY HUB */
     svg.appendChild(p(`M ${manualX+14} ${manualY} C ${manualX+80} ${manualY}, ${sevHubX-80} ${sevHubY}, ${sevHubX-14} ${sevHubY}`,{stroke:'rgba(251,146,60,0.5)','stroke-width':'4',fill:'none'}));
 
-    /* HITL dashed bridge */
-    const hitl1 = p(`M ${manualX+30} ${manualY-6} C ${manualX+60} ${(manualY+autoY)/2+60}, ${hitlMidX-60} ${(manualY+autoY)/2}, ${hitlMidX} ${hitlMidY}`,
-      {stroke:'rgba(94,234,212,0.5)','stroke-width':'1.5',fill:'none','stroke-dasharray':'4 4'});
-    hitl1.style.animation = 'dashDrift 2s linear infinite';
-    svg.appendChild(hitl1);
-    const hitl2 = p(`M ${hitlMidX} ${hitlMidY} C ${hitlMidX+60} ${hitlMidY-80}, ${hitlBackX-60} ${autoY+20}, ${hitlBackX} ${autoY}`,
-      {stroke:'rgba(94,234,212,0.5)','stroke-width':'1.5',fill:'none','stroke-dasharray':'4 4'});
-    hitl2.style.animation = 'dashDrift 2s linear infinite';
-    svg.appendChild(hitl2);
+    /* HITL node dot at pill center */
+    svg.appendChild(c(hitlMidX, hitlMidY, 6, {fill:'var(--bg-1)', stroke:'rgba(94,234,212,0.7)', 'stroke-width':'1.5'}));
+    svg.appendChild(c(hitlMidX, hitlMidY, 2.5, {fill:'rgba(94,234,212,0.9)'}));
+
+    /* HITL dashed bridges — pill → AUTOMATED (up) and pill → MANUAL (down) */
+    const hitlToAuto = p(
+      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX-10} ${hitlMidY-60}, ${autoX+70} ${autoY+40}, ${autoX+14} ${autoY}`,
+      {stroke:'rgba(94,234,212,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
+    hitlToAuto.style.animation = 'dashDrift 2s linear infinite';
+    svg.appendChild(hitlToAuto);
+
+    const hitlToMan = p(
+      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX-10} ${hitlMidY+60}, ${manualX+70} ${manualY-40}, ${manualX+14} ${manualY}`,
+      {stroke:'rgba(251,146,60,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
+    hitlToMan.style.animation = 'dashDrift 2s linear infinite';
+    svg.appendChild(hitlToMan);
 
     /* Severity fan-out paths */
     SEVERITIES.forEach(s => {
@@ -829,10 +836,12 @@ function buildIncidentsFlow(container) {
       <div style="font-size:9px;letter-spacing:.14em;color:var(--text-muted);margin-top:3px;font-weight:700;">RESOLVED<br>INCIDENTS</div>
     </div>`);
 
-    /* HITL pill */
-    lbl(hitlMidX-90, hitlMidY-18, `<div style="background:var(--bg-2);border:1px dashed rgba(94,234,212,.5);border-radius:999px;padding:6px 14px;font-size:11px;white-space:nowrap;color:var(--text-primary);">
-      <span style="color:var(--teal);font-weight:700;font-family:var(--font-mono);">20</span> can be automated
-      <div style="font-size:9px;color:var(--text-muted);margin-top:2px;text-align:center;">HITL · 10 playbooks ready</div>
+    /* HITL pill — centered on hitlMidX/Y */
+    lbl(hitlMidX - 110, hitlMidY - 38, `<div style="text-align:center;width:220px;">
+      <div style="display:inline-block;background:var(--bg-2);border:1px dashed rgba(94,234,212,.6);border-radius:999px;padding:7px 18px;font-size:11px;white-space:nowrap;color:var(--text-primary);box-shadow:0 0 12px rgba(94,234,212,.1);">
+        <span style="color:var(--teal);font-weight:700;font-family:var(--font-mono);">20</span> can be automated
+        <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">HITL · 10 playbooks ready</div>
+      </div>
     </div>`);
 
     /* OPEN INCIDENTS by severity */
