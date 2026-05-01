@@ -1611,6 +1611,11 @@ code, .mono {
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  transition: grid-template-columns 0.25s ease;
+}
+
+.app.sidebar-collapsed {
+  grid-template-columns: 0 1fr;
 }
 
 /* ── Sidebar ── */
@@ -1624,6 +1629,14 @@ code, .mono {
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: padding 0.25s ease, border-color 0.25s ease;
+}
+
+.app.sidebar-collapsed .sidebar {
+  padding: 0;
+  border-right-color: transparent;
+  pointer-events: none;
 }
 
 .brand {

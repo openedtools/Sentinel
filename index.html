@@ -34,61 +34,7 @@
         </div>
       </div>
 
-      <!-- ── Row 1: Big Stat Counters ── -->
-      <div class="grid-5 mb-4">
-
-        <div class="card stat-card-accent" style="border-top-color:var(--critical);">
-          <div class="flex justify-between items-center mb-1">
-            <div class="card-title">Alerts Ingested</div>
-            <span class="stat-trend stat-trend-danger">↑ +127</span>
-          </div>
-          <div class="stat-big stat-critical" id="stat-alerts">0</div>
-          <div class="stat-label">raw events / 24h</div>
-          <div class="stat-subline">AI processes all in real-time</div>
-        </div>
-
-        <div class="card stat-card-accent" style="border-top-color:var(--teal);">
-          <div class="flex justify-between items-center mb-1">
-            <div class="card-title">AI-Prioritized</div>
-            <span class="stat-trend stat-trend-teal">95.3% ↓</span>
-          </div>
-          <div class="stat-big stat-teal" id="stat-incidents">0</div>
-          <div class="stat-label">incidents after noise reduction</div>
-          <div class="stat-subline">from 2,742 raw alerts</div>
-        </div>
-
-        <div class="card stat-card-accent" style="border-top-color:var(--low);">
-          <div class="flex justify-between items-center mb-1">
-            <div class="card-title">Resolved</div>
-            <span class="stat-trend stat-trend-good">79% rate</span>
-          </div>
-          <div class="stat-big stat-low" id="stat-resolved">0</div>
-          <div class="stat-label">incidents closed</div>
-          <div class="stat-subline">103 of 130 incidents</div>
-        </div>
-
-        <div class="card stat-card-accent" style="border-top-color:var(--high);">
-          <div class="flex justify-between items-center mb-1">
-            <div class="card-title">Open Incidents</div>
-            <span class="stat-trend stat-trend-danger">↑ needs action</span>
-          </div>
-          <div class="stat-big stat-high" id="stat-open">0</div>
-          <div class="stat-label">require analyst attention</div>
-          <div class="stat-subline">3 critical · 12 high · 12 other</div>
-        </div>
-
-        <div class="card stat-card-accent" style="border-top-color:var(--medium);">
-          <div class="flex justify-between items-center mb-1">
-            <div class="card-title">Events Prevented</div>
-            <span class="stat-trend stat-trend-teal">AI auto</span>
-          </div>
-          <div class="stat-big stat-teal" style="font-size:1.75rem" id="stat-prevented">0</div>
-          <div class="stat-label">blocked by AI automation</div>
-          <div class="stat-subline">since exercise start</div>
-        </div>
-      </div>
-
-      <!-- ── Row 2: Sankey + Right Panel ── -->
+      <!-- ── Row 1: AI Alert/Incident Flow (hero) ── -->
       <div style="display:grid;grid-template-columns:1fr 240px;gap:1rem;margin-bottom:1rem;">
 
         <!-- Sankey flow -->
@@ -100,7 +46,7 @@
             </div>
             <span class="badge badge-teal" style="font-size:0.6875rem;">AI Noise Reduction: 95.3%</span>
           </div>
-          <div class="sankey-canvas-wrap" id="aicore-wrap" style="height:460px;">
+          <div class="sankey-canvas-wrap" id="aicore-wrap" style="height:540px;">
             <svg id="sankey-svg"></svg>
           </div>
           <div class="flex gap-5 mt-0" style="justify-content:center;padding:0.75rem 1.25rem;border-top:1px solid var(--border);background:rgba(0,0,0,0.1);flex-wrap:wrap;">
@@ -193,6 +139,60 @@
             </div>
           </div>
 
+        </div>
+      </div>
+
+      <!-- ── Row 2: Big Stat Counters ── -->
+      <div class="grid-5 mb-4">
+
+        <div class="card stat-card-accent" style="border-top-color:var(--critical);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Alerts Ingested</div>
+            <span class="stat-trend stat-trend-danger">↑ +127</span>
+          </div>
+          <div class="stat-big stat-critical" id="stat-alerts">0</div>
+          <div class="stat-label">raw events / 24h</div>
+          <div class="stat-subline">AI processes all in real-time</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--teal);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">AI-Prioritized</div>
+            <span class="stat-trend stat-trend-teal">95.3% ↓</span>
+          </div>
+          <div class="stat-big stat-teal" id="stat-incidents">0</div>
+          <div class="stat-label">incidents after noise reduction</div>
+          <div class="stat-subline">from 2,742 raw alerts</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--low);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Resolved</div>
+            <span class="stat-trend stat-trend-good">79% rate</span>
+          </div>
+          <div class="stat-big stat-low" id="stat-resolved">0</div>
+          <div class="stat-label">incidents closed</div>
+          <div class="stat-subline">103 of 130 incidents</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--high);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Open Incidents</div>
+            <span class="stat-trend stat-trend-danger">↑ needs action</span>
+          </div>
+          <div class="stat-big stat-high" id="stat-open">0</div>
+          <div class="stat-label">require analyst attention</div>
+          <div class="stat-subline">3 critical · 12 high · 12 other</div>
+        </div>
+
+        <div class="card stat-card-accent" style="border-top-color:var(--medium);">
+          <div class="flex justify-between items-center mb-1">
+            <div class="card-title">Events Prevented</div>
+            <span class="stat-trend stat-trend-teal">AI auto</span>
+          </div>
+          <div class="stat-big stat-teal" style="font-size:1.75rem" id="stat-prevented">0</div>
+          <div class="stat-label">blocked by AI automation</div>
+          <div class="stat-subline">since exercise start</div>
         </div>
       </div>
 

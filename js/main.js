@@ -542,7 +542,16 @@ SENTINEL.renderShell = function() {
     } else if (pageId === 'incidents') {
       navBtn = `<a href="index.html" class="btn" style="font-size:11px;">← Command Center</a>`;
     }
+    const sidebarCollapsed = localStorage.getItem('sentinel_sidebar_collapsed') === '1';
+    const app = document.querySelector('.app');
+    if (app && sidebarCollapsed) app.classList.add('sidebar-collapsed');
+
     tb.innerHTML = `<header class="topbar">
+      <button id="sb-toggle-btn" title="Toggle sidebar" onclick="SENTINEL.toggleSidebar()"
+        style="flex-shrink:0;width:30px;height:30px;background:none;border:1px solid var(--line);border-radius:6px;color:var(--text-muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s;margin-right:8px;"
+        onmouseenter="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'"
+        onmouseleave="this.style.borderColor='var(--line)';this.style.color='var(--text-muted)'"
+        >${sidebarCollapsed ? '☰' : '✕'}</button>
       <div>
         <div class="crumb">SENTINEL <span style="color:var(--text-muted);margin:0 4px;">/</span> <span style="color:var(--text);font-weight:600;">${current.name}</span></div>
         <div class="greeting">Good ${tod}, <strong style="color:var(--teal);">${firstName}</strong></div>
@@ -558,6 +567,16 @@ SENTINEL.renderShell = function() {
       </div>
     </header>`;
   }
+};
+
+/* ── Sidebar collapse toggle ── */
+SENTINEL.toggleSidebar = function() {
+  const app = document.querySelector('.app');
+  if (!app) return;
+  const collapsed = app.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sentinel_sidebar_collapsed', collapsed ? '1' : '');
+  const btn = document.getElementById('sb-toggle-btn');
+  if (btn) btn.textContent = collapsed ? '☰' : '✕';
 };
 
 /* ── Incidents view toggle (dashboard only) ── */

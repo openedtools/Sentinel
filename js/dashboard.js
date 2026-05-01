@@ -254,7 +254,7 @@ function buildAIFlowViz() {
 
     // Alerts counter (left of core)
     makeLabel(`position:absolute;left:${coreCx-coreR-96}px;top:${coreCy-20}px;text-align:right;width:78px;`,
-      `<div style="font-size:22px;font-weight:600;color:var(--text);line-height:1;font-family:var(--font-mono);">2,742</div><div style="font-size:9px;letter-spacing:0.14em;color:var(--text-muted);margin-top:3px;font-weight:700;">ALERTS / 24H</div>`);
+      `<div id="aicore-alert-count" style="font-size:22px;font-weight:600;color:var(--text);line-height:1;font-family:var(--font-mono);">2,742</div><div style="font-size:9px;letter-spacing:0.14em;color:var(--text-muted);margin-top:3px;font-weight:700;">ALERTS / 24H</div>`);
 
     // AI label inside core
     makeLabel(`position:absolute;left:${coreCx-40}px;top:${coreCy-14}px;width:80px;text-align:center;`,
@@ -373,7 +373,7 @@ function buildAIFlowViz() {
     activeRAFs.forEach(fn => fn()); activeRAFs = [];
     svg.innerHTML = ''; overlay.innerHTML = '';
     const w = wrap.offsetWidth, h = wrap.offsetHeight;
-    if (!w || !h) return;
+    if (!w || !h) { setTimeout(rebuild, 100); return; }
     svg.setAttribute('width', w); svg.setAttribute('height', h);
     computeGeom(w, h);
     buildDefs();
@@ -385,10 +385,10 @@ function buildAIFlowViz() {
   }
 
   let resizeTimer;
-  const ro = new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = setTimeout(rebuild, 80); });
+  const ro = new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = setTimeout(rebuild, 300); });
   ro.observe(wrap);
-  // Initial build after layout (setTimeout so it works in background tabs too)
-  setTimeout(rebuild, 0);
+  // Initial build after layout
+  setTimeout(rebuild, 50);
 
   /* legacy: remove any orphaned #sankey-svg element */
   const svgPlaceholder = document.getElementById('sankey-svg');
@@ -1019,7 +1019,10 @@ function startLiveAlertCounter() {
     setInterval(() => {
       const elapsedMin = (Date.now() - startT) / 60000;
       const val = Math.floor(startVal + elapsedMin * ratePerMin + Math.sin(Date.now() / 3000) * 1.2);
-      el.textContent = val.toLocaleString();
+      const formatted = val.toLocaleString();
+      el.textContent = formatted;
+      const aiEl = document.getElementById('aicore-alert-count');
+      if (aiEl) aiEl.textContent = formatted;
     }, 800);
   }, 2000);
 }
