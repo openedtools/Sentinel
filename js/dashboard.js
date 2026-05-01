@@ -756,30 +756,35 @@ function buildIncidentsFlow(container) {
     /* MANUAL → SEVERITY HUB */
     svg.appendChild(p(`M ${manualX+14} ${manualY} C ${manualX+80} ${manualY}, ${sevHubX-80} ${sevHubY}, ${sevHubX-14} ${sevHubY}`,{stroke:'rgba(251,146,60,0.5)','stroke-width':'4',fill:'none'}));
 
-    /* HITL node dot at pill center */
-    svg.appendChild(c(hitlMidX, hitlMidY, 6, {fill:'var(--bg-1)', stroke:'rgba(94,234,212,0.7)', 'stroke-width':'1.5'}));
-    svg.appendChild(c(hitlMidX, hitlMidY, 2.5, {fill:'rgba(94,234,212,0.9)'}));
+    /* Pill edge connection points (pill is 220px wide, ~40px tall, top at hitlMidY-38) */
+    const pillLeftX  = hitlMidX - 106;
+    const pillRightX = hitlMidX + 106;
+    const pillConnY  = hitlMidY - 17;   // vertical center of the rendered pill
 
-    /* Dashed line: MANUAL node → HITL pill (incoming) */
+    /* Small anchor dots on pill edges */
+    svg.appendChild(c(pillLeftX,  pillConnY, 3, {fill:'rgba(251,146,60,0.85)'}));
+    svg.appendChild(c(pillRightX, pillConnY, 3, {fill:'rgba(94,234,212,0.85)'}));
+
+    /* Dashed line: MANUAL node → left edge of pill (incoming, amber) */
     const manToHitl = p(
-      `M ${manualX+14} ${manualY} C ${manualX+100} ${manualY-60}, ${hitlMidX-100} ${hitlMidY+60}, ${hitlMidX} ${hitlMidY}`,
+      `M ${manualX+14} ${manualY} C ${manualX+90} ${manualY-30}, ${pillLeftX-90} ${pillConnY+30}, ${pillLeftX} ${pillConnY}`,
       {stroke:'rgba(251,146,60,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
     manToHitl.style.animation = 'dashDrift 2s linear infinite';
     svg.appendChild(manToHitl);
 
-    /* Dashed line: HITL pill → RESOLVED endpoint (teal, up-right) */
-    const hitlToAuto = p(
-      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX+40} ${hitlMidY-80}, ${resolvedX-60} ${resolvedY+40}, ${resolvedX-10} ${resolvedY}`,
+    /* Dashed line: right edge of pill → RESOLVED node (teal, up-right) */
+    const hitlToResolved = p(
+      `M ${pillRightX} ${pillConnY} C ${pillRightX+70} ${pillConnY-50}, ${resolvedX-70} ${resolvedY+40}, ${resolvedX-10} ${resolvedY}`,
       {stroke:'rgba(94,234,212,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
-    hitlToAuto.style.animation = 'dashDrift 2s linear infinite';
-    svg.appendChild(hitlToAuto);
+    hitlToResolved.style.animation = 'dashDrift 2s linear infinite';
+    svg.appendChild(hitlToResolved);
 
-    /* Dashed line: HITL pill → SEVERITY HUB endpoint (amber, down-right) */
-    const hitlToMan = p(
-      `M ${hitlMidX} ${hitlMidY} C ${hitlMidX+40} ${hitlMidY+80}, ${sevHubX-60} ${sevHubY-40}, ${sevHubX-10} ${sevHubY}`,
+    /* Dashed line: right edge of pill → SEVERITY HUB (amber, down-right) */
+    const hitlToSevHub = p(
+      `M ${pillRightX} ${pillConnY} C ${pillRightX+70} ${pillConnY+50}, ${sevHubX-70} ${sevHubY-40}, ${sevHubX-10} ${sevHubY}`,
       {stroke:'rgba(251,146,60,0.6)', 'stroke-width':'1.5', fill:'none', 'stroke-dasharray':'4 4'});
-    hitlToMan.style.animation = 'dashDrift 2s linear infinite';
-    svg.appendChild(hitlToMan);
+    hitlToSevHub.style.animation = 'dashDrift 2s linear infinite';
+    svg.appendChild(hitlToSevHub);
 
     /* Severity fan-out paths */
     SEVERITIES.forEach(s => {
