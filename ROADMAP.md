@@ -6,140 +6,199 @@ Stack: Vanilla HTML/CSS/JS · No backend · localStorage for progress · Static 
 
 ---
 
-## Completed Modules (8 total)
+## Completed Modules (13 total)
 
-| # | Module | File | Sec+ Domain | Time |
-|---|--------|------|-------------|------|
+| # | Module | File | Domain / Topic | Pts |
+|---|--------|------|----------------|-----|
 | 1 | Command Center (dashboard) | index.html | — | — |
-| 2 | Alert Triage | triage.html | Domain 4 (Ops) | ~15 min |
-| 3 | Incident Investigation (5 scenarios) | investigate.html | Domain 2 & 4 | ~25 min |
-| 4 | Remediation Lab | remediate.html | Domain 3 & 4 | ~20 min |
+| 2 | Alert Triage | triage.html | Sec+ Domain 4 (Ops) | 100 |
+| 3 | Incident Investigation (5 scenarios) | investigate.html | Sec+ Domain 2 & 4 | 100 |
+| 4 | Remediation Lab | remediate.html | Sec+ Domain 3 & 4 | 100 |
 | 5 | Scenario Library | scenarios.html | — | — |
-| 6 | Log Decoding Challenge | logs.html | Domain 2 & 4 | ~30 min |
-| 7 | Vulnerability Prioritization Lab | vulns.html | Domain 2 | ~25 min |
-| 8 | Risk Register Simulator | risk.html | Domain 5 | ~30 min |
+| 6 | Log Decoding Challenge | logs.html | Sec+ Domain 2 & 4 | 100 |
+| 7 | Vulnerability Prioritization Lab | vulns.html | Sec+ Domain 2 | 100 |
+| 8 | Risk Register Simulator | risk.html | Sec+ Domain 5 | 100 |
+| 9 | Detection & Threat Intel | detection.html | Sec+ Domain 4 | 60 |
+| 10 | Assets | assets.html | Sec+ Domain 2 & 5 | 50 |
+| 11 | Endpoints | endpoints.html | Sec+ Domain 4 | 80 |
+| 12 | Identity | identity.html | Sec+ Domain 1 & 2 | 60 |
+| 13 | Cryptography Playground | crypto.html | Sec+ Domain 1 | 100 |
+
+**Current max score: ~1050 pts across 11 scored modules.**
 
 ---
 
-## Priority 1 — Activate Grayed-Out Nav Sections
+## Teaching Context (informs all future work)
 
-These four sections exist in the sidebar as disabled placeholders (opacity 0.38, pointer-events none).
-They are under the OPERATIONS and ASSETS nav groups in js/main.js → renderShell().
-Each should be a simulated XSIAM-style read page + at least one interactive training element.
+SENTINEL is used live in class by international students — many English is a second language,
+many have no prior IT background. Every module should follow this three-layer pattern:
 
-### Detection & Threat Intel (icon: ◎)
-File to create: `detection.html` / `js/detection.js`
-- IOC (Indicator of Compromise) browser — searchable table of IPs, hashes, domains, CVEs
-- Threat actor profiles (3–4 actors active in the exercise scenario)
-- Detection rule library — show existing YARA/Sigma-style rules with match logic explained
-- **Training element**: IOC Matching Challenge — given a set of alerts, drag IOCs to the alert they
-  explain. Teaches: what IOCs are, how threat intel enriches alert context.
+1. **Analogy card first** — plain-English metaphor before any jargon
+2. **Visual/interactive demo** — the concept becomes visceral before the quiz
+3. **Jargon locked** — technical terms only appear *after* the student has experienced the concept
 
-### Assets (icon: ▤)
-File to create: `assets.html` / `js/assets.js`
-- Simulated asset inventory: ~30 assets with type, owner, criticality, OS, last-seen, patch status
-- Filterable/sortable table (no backend — filter in JS)
-- Asset detail card: shows open vulnerabilities, recent alerts, assigned incidents
-- **Training element**: Asset Classification Exercise — given 10 assets, students assign
-  criticality (Critical/High/Medium/Low) based on data sensitivity and business function.
-  Connects to risk register concepts (asset value drives impact score).
-
-### Endpoints (icon: ▢)
-File to create: `endpoints.html` / `js/endpoints.js`
-- EDR-style endpoint list: hostname, user, OS, last check-in, AV status, patch compliance %
-- Color-coded health: green (healthy), yellow (stale/at-risk), red (compromised/quarantined)
-- Endpoint detail: process tree, recent alerts, network connections
-- **Training element**: Endpoint Triage Drill — 8 endpoints shown with EDR telemetry snippets
-  (running processes, network connections, file events). Student marks each as Clean / Suspicious /
-  Compromised. Teaches: what EDR data looks like, indicators of living-off-the-land attacks.
-
-### Identity (icon: ⚷)
-File to create: `identity.html` / `js/identity.js`
-- User account list: name, role, MFA status, last login, privilege level, account age
-- Highlight risky patterns: never-logged-in admins, MFA not enrolled, stale accounts
-- Privileged account spotlight: Domain Admins, Service Accounts
-- **Training element**: Identity Risk Audit — given 12 accounts with attributes, students flag
-  which ones violate least-privilege, need MFA enforcement, or should be disabled.
-  Teaches: identity hygiene, PAM concepts, insider threat indicators (Sec+ Domain 1 & 2).
+Cross-cutting theme running through all content: **AI-enabled attack + defense**, and how
+**quantum computing threatens current cryptography** (HNDL, Shor's, Grover's, PQC transition).
 
 ---
 
-## Priority 2 — New Training Modules (Security+ Coverage Gaps)
-
-### Cryptography Playground
-File: `crypto.html` / `js/crypto.js`  
-Sec+ Domain: 1 — General Security Concepts (12% of exam)  
-Uses: Web Crypto API (window.crypto.subtle) — no backend needed  
-- **Symmetric vs Asymmetric**: student encrypts a message with a public key, sees they can't
-  decrypt without the private key. Then encrypt/decrypt with a shared AES key.
-- **Hashing demo**: type any text, see SHA-256 output update live. Change one character,
-  see the hash completely change (avalanche effect). Compare MD5 vs SHA-256 length/speed.
-- **Hash cracking sim**: given 5 common passwords hashed with MD5, student matches them to
-  a rainbow table — teaches why MD5 is broken for passwords.
-- **PKI chain**: interactive cert chain diagram — Root CA → Intermediate CA → Leaf cert.
-  Student inspects a PEM cert (decoded in-browser) and identifies expiry, CN, SANs.
-- **Scoring**: quiz questions after each section — 4 sections × ~25 pts = 100 pts max
+## Priority 1 — Security+ Coverage Gaps (New Training Modules)
 
 ### Phishing Header Forensics Lab
 File: `phishing.html` / `js/phishing.js`  
 Sec+ Domain: 2 — Threats, Vulnerabilities & Mitigations  
-- 5 raw email samples (headers + body) — student must identify malicious indicators
-- Interactive header parser: student clicks on header fields to annotate them
-- Checks: SPF pass/fail, DKIM signature, DMARC policy, display-name vs actual From mismatch,
-  reply-to redirect, suspicious link hover (URL shown vs displayed text), urgency language
-- Each sample has 3–5 hidden indicators to find
-- Teaches: what a real phishing email looks like at the protocol level
+**Teaching hook for international students:** email phishing is universal; everyone has seen a
+suspicious email. This makes it the most relatable entry point for non-technical learners.
+
+- 5 raw email samples (headers + body) — student clicks on suspicious elements to annotate them
+- Header parser: SPF pass/fail, DKIM, DMARC, display-name vs actual From mismatch,
+  reply-to redirect, suspicious link hover (URL vs displayed text), urgency language
+- Each sample has 3–5 hidden indicators — progressive reveal as student finds them
+- Final sample uses AI-generated body text (WormGPT style) — teaches why content filtering alone fails
+- **Scoring:** 5 emails × ~20 pts each = 100 pts
 
 ### Compliance Control Mapper
 File: `compliance.html` / `js/compliance.js`  
-Sec+ Domain: 5 — Security Program Management (exam heavily tests compliance frameworks)  
+Sec+ Domain: 5 — Security Program Management  
+**Teaching hook for international students:** connect abstract framework names to real business
+scenarios. HIPAA = hospital, PCI-DSS = credit card swipe, NIST = government contract.
+
 - 3 scenarios: healthcare (HIPAA), payment (PCI-DSS), federal contractor (NIST 800-53)
-- Given a business scenario + a set of 10 security controls, student drags each control to
-  the correct compliance requirement it satisfies
-- Speed-matching format with a timer (adults respond well to competitive pressure)
-- Teaches: HIPAA safeguards, PCI-DSS requirements, NIST controls — by name, not by rote
+- Drag-and-drop or click-to-assign: given 10 controls, student maps each to the right requirement
+- Speed-matching format with timer (competitive pressure works well cross-culturally)
+- Teaches: HIPAA safeguards, PCI-DSS requirements, NIST controls — by name not by rote
+- **Scoring:** 3 scenarios × ~33 pts = 100 pts
 
 ### Threat Hunt Mode (Dashboard Enhancement)
 Enhancement to: index.html / js/dashboard.js  
 Sec+ Domain: 4 — Security Operations  
-- Add a "Hunt Mode" toggle button to the dashboard Command Center
-- Flips the dashboard from passive observation to active investigation mode
-- Student is given a hypothesis ("Suspected beaconing on port 443 at regular intervals")
-- Interactive log filter panel: filter live event log by source, time range, keyword
-- Student must confirm or deny the hypothesis by finding/not-finding supporting evidence
-- Teaches: proactive threat hunting vs reactive alerting — a growing Security+ topic
+**Teaching hook:** positions students as active hunters, not passive alarm-watchers — shifts mindset.
+
+- "Hunt Mode" toggle button on Command Center
+- Student receives a hypothesis (e.g., "Suspected beaconing on port 443 at regular intervals")
+- Interactive log filter panel: filter live event log by source IP, time range, keyword
+- Student must confirm or deny the hypothesis from the evidence
+- Teaches: proactive threat hunting vs reactive alerting — growing Sec+ and real-world topic
+
+---
+
+## Priority 2 — Teaching Depth for International / Non-Technical Students
+
+These aren't new pages — they're improvements to make existing content more accessible
+to learners with no prior IT background or ESL learners reading under time pressure.
+
+### Glossary / Term Tooltips
+- Every technical term in the site should show a plain-English tooltip on hover
+- Terms: IOC, CVE, CVSS, MITRE ATT&CK, TTPs, lateral movement, exfiltration, privilege escalation,
+  MFA, PAM, EDR, SIEM, SOAR, YARA/Sigma, RSA, AES, PKI, CA, HNDL, PQC, ML-KEM, etc.
+- Implementation: a `GLOSSARY` object in a new `js/glossary.js`, injected via `renderShell()`
+  or a `SENTINEL.initGlossary()` call at the bottom of each page
+- CSS: `.glossary-term` underline + tooltip on hover (`:hover::after` or a small JS tooltip div)
+- **Benefit for international students:** allows self-paced reading without stopping to Google
+
+### Concept Map / Learning Path Overlay
+- A "What does this teach me?" button on every module card (visible on scenarios.html and dashboard)
+- Opens a modal showing: which Sec+ domain, which real-world job task, which other modules connect
+- Simple SVG or CSS diagram showing module dependencies (Triage → Investigate → Remediate, etc.)
+- **Benefit:** helps students understand *why* they're doing each exercise, not just *what*
+
+### Translated Analogy Cards
+- The analogy cards already exist in each module (e.g., "combination padlock" for AES)
+- Add a language toggle (🌐) that swaps the analogy card text into Thai, Spanish, or French
+- Store translations as a static JSON object — no backend needed
+- Target languages chosen for DCOI audience (Thailand primary; others secondary)
+- **Benefit:** when a concept is genuinely hard, reading it in your first language first unlocks it
 
 ---
 
 ## Priority 3 — Quality of Life
 
-- **Instructor Dashboard**: read-only view showing all students' progress and scores.
-  Could be a separate `instructor.html` that reads from a shared URL parameter
-  (e.g., students paste score codes, instructor page decodes and renders a leaderboard).
-  No backend needed — score codes contain all the data.
+### Instructor Dashboard
+File: `instructor.html`  
+- Read-only view showing all students' progress and scores in a leaderboard
+- Students paste their score code (`SENTINEL·Name·Date·TR90·…·CR80·510PTS`)
+- Instructor page decodes all pasted codes and renders a comparison table
+- No backend needed — score codes contain all the data
+- Bonus: export to CSV for attendance/grade records
 
-- **Scenarios page**: update scenarios.html to list the 3 new Security+ modules
-  (Log Analysis, Vuln Prioritization, Risk Register) alongside the 5 SIEM scenarios.
+### Scenarios Page Update
+- Update `scenarios.html` to list all 13 completed modules (currently only shows the original 5 SIEM scenarios)
+- Add the 4 XSIAM pages (Detection, Assets, Endpoints, Identity) and Cryptography Playground
+  to the module listing with correct Sec+ domain tags and time estimates
 
-- **Mobile layout pass**: the grid layouts use fixed columns that break below ~900px.
-  A single CSS media query pass would make the site usable on tablets for students
-  without laptops.
+### Mobile / Tablet Layout Pass
+- Grid layouts break below ~900px — a single CSS media query pass would fix tablets
+- Especially important for international classroom settings where students may only have tablets
 
-- **Print/export**: a "Print Score Card" button that generates a clean summary of
-  all completed modules — useful for in-person training where instructors collect paper.
+### Print / Export Score Card
+- "Print Score Card" button that generates a clean summary of all completed modules
+- Useful in-person where instructors collect paper evidence of completion
+
+---
+
+## Priority 4 — Advanced / Stretch Goals
+
+### AI-Assisted Debrief Mode
+- After completing any module, student can click "Ask the AI" to get a plain-English explanation
+  of what they got wrong and why — powered by a call to the Claude API
+- Requires a tiny serverless function (Cloudflare Worker or Netlify Function) as a proxy
+- Would be transformative for self-paced learners outside of class
+
+### Network Topology Visualizer
+- Interactive node map of the simulated DCOI network (DC-01, FILE-SERVER-01, WS-004, etc.)
+- Clicking a node shows its incidents, endpoints data, and recent logs
+- Ties together the scattered references to hostnames across all modules
+- Teaching value: students see the *network* not just isolated events
+
+### Red Team vs Blue Team Mode
+- Two-player version: one student plays attacker (chooses attack TTPs from a menu),
+  the other plays defender (must detect and respond)
+- Turn-based, text-driven, no graphics needed
+- Teaching value: understanding attacker perspective is Sec+ Domain 2 core content
+- Stretch: instructor runs one "attacker" screen projected to the class, teams compete
 
 ---
 
 ## Architecture Notes (for new thread context)
 
-- All pages follow the same shell pattern:
-  `<div id="sb"></div>` (sidebar) + `<div class="main"><div id="topbar-mount"></div>...`
-- `js/main.js` injects sidebar + topbar via `SENTINEL.renderShell()` on DOMContentLoaded
-- New pages need: their filename registered in `SENTINEL._getPageId()`,
-  a nav entry in `PAGE_META` inside `renderShell()`, and a nav item in the sidebar HTML
-- Progress stored in localStorage key `sentinel_progress` as JSON
-- To add a new module's score: add `xyzScore` and `xyzCompleted` to the default progress
-  object in `getProgress()`, save via `SENTINEL.saveProgress(p)`, and add to `generateScoreCode()`
-- CSS variables: `--teal` (#5eead4), `--critical` (#f43f5e), `--high` (#fb923c),
-  `--medium` (#facc15), `--low` (#38bdf8), `--ok` (#4ade80)
+**Shell pattern** (all pages follow this):
+```html
+<div class="app">
+  <div id="sb"></div>       <!-- sidebar injected by SENTINEL.renderShell() -->
+  <div class="main">
+    <div id="topbar-mount"></div>
+    <!-- page content -->
+  </div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/[page].js"></script>
+```
+
+**Registering a new page in `js/main.js`:**
+1. `_getPageId()` — add `'page.html': 'pageid'` to the map
+2. `getProgress()` — add `pageScore: 0, pageCompleted: false` to default object
+3. `generateScoreCode()` — add `const seg = p.pageCompleted ? \`XX${score}\` : 'XX--';` and interpolate
+4. `PAGE_META` inside `renderShell()` — add `pageid: { name, href, icon }`
+5. Sidebar nav HTML inside `renderShell()` — add `${navItem(['pageid', PAGE_META.pageid])}`
+
+**CSS design tokens:**
+- `--teal` (#5eead4) — primary accent
+- `--critical` (#f43f5e), `--high` (#fb923c), `--medium` (#facc15), `--low` (#38bdf8), `--ok` (#4ade80)
+- `--bg-primary`, `--bg-2`, `--line`, `--line-strong`, `--text-primary`, `--text-muted`, `--text-dim`
 - Fonts: Inter (UI) + JetBrains Mono (logs/code) — loaded from Google Fonts in style.css
+
+**Key cross-references already in the codebase:**
+- `js/data.js` line 248 — HNDL scenario with RSA-2048/DH-1024 downgrade explanation
+- `js/main.js` line 201 — SEC-VAULT-01 post-quantum TLS log entry
+- `js/main.js` line 167 — svc_backup_new Domain Admin creation (identity module)
+
+**Score code format:**
+`SENTINEL·Name·DateStr·TR{n}·SC{n}·LG{n}·VL{n}·RK{n}·DT{n}·AS{n}·EP{n}·ID{n}·CR{n}·{total}PTS`
+
+**Progress stored in:** `localStorage` key `sentinel_progress` as JSON.
+Save via `SENTINEL.saveProgress(p)`. Update score delta via `SENTINEL.updateScore(delta)`.
+
+**Lab unlock pattern** (logs.js, risk.js, crypto.js):
+- Sequential sections; completing the quiz reveals the next section / unlocks a Next button
+- `submitLabQuiz(labIndex, selected, correct, nextBtnId)` pattern in crypto.js is cleanest — reuse it
