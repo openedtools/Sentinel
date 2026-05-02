@@ -6,7 +6,7 @@ Stack: Vanilla HTML/CSS/JS · No backend · localStorage for progress · Static 
 
 ---
 
-## Completed Modules (13 total)
+## Completed Modules (15 total)
 
 | # | Module | File | Domain / Topic | Pts |
 |---|--------|------|----------------|-----|
@@ -23,8 +23,13 @@ Stack: Vanilla HTML/CSS/JS · No backend · localStorage for progress · Static 
 | 11 | Endpoints | endpoints.html | Sec+ Domain 4 | 80 |
 | 12 | Identity | identity.html | Sec+ Domain 1 & 2 | 60 |
 | 13 | Cryptography Playground | crypto.html | Sec+ Domain 1 | 100 |
+| 14 | Glossary / Term Tooltips ✅ | js/glossary.js (site-wide) | ESL support | — |
+| 15 | Phishing Header Forensics Lab ✅ | phishing.html | Sec+ Domain 2 | 100 |
 
-**Current max score: ~1050 pts across 11 scored modules.**
+**Current max score: ~1150 pts across 12 scored modules.**
+
+### Score Code Format (updated)
+`SENTINEL·Name·DateStr·TR{n}·SCN{n}/5·LG{n}·VL{n}·RK{n}·DT{n}·AS{n}·EP{n}·ID{n}·CR{n}·PH{n}·{total}PTS`
 
 ---
 
@@ -44,30 +49,33 @@ Cross-cutting theme running through all content: **AI-enabled attack + defense**
 
 ## Priority 1 — Security+ Coverage Gaps (New Training Modules)
 
-### Phishing Header Forensics Lab
-File: `phishing.html` / `js/phishing.js`  
-Sec+ Domain: 2 — Threats, Vulnerabilities & Mitigations  
-**Teaching hook for international students:** email phishing is universal; everyone has seen a
-suspicious email. This makes it the most relatable entry point for non-technical learners.
+### ✅ DONE — Phishing Header Forensics Lab
+File: `phishing.html` / `js/phishing.js` · **100 pts · Sec+ Domain 2**
 
-- 5 raw email samples (headers + body) — student clicks on suspicious elements to annotate them
-- Header parser: SPF pass/fail, DKIM, DMARC, display-name vs actual From mismatch,
-  reply-to redirect, suspicious link hover (URL vs displayed text), urgency language
-- Each sample has 3–5 hidden indicators — progressive reveal as student finds them
-- Final sample uses AI-generated body text (WormGPT style) — teaches why content filtering alone fails
-- **Scoring:** 5 emails × ~20 pts each = 100 pts
+5 progressively harder email samples covering: display name spoofing, Reply-To redirect (BEC),
+SPF/DKIM/DMARC authentication deep-dive, lookalike/subdomain domain tricks, and AI-generated
+phishing (WormGPT) that defeats content filtering. Students click Examine buttons to surface
+forensic findings; quiz unlocks after all fields examined. Scoring: 5 × 20 pts = 100 pts.
 
-### Compliance Control Mapper
+---
+
+### NEXT — Compliance Control Mapper
 File: `compliance.html` / `js/compliance.js`  
 Sec+ Domain: 5 — Security Program Management  
 **Teaching hook for international students:** connect abstract framework names to real business
 scenarios. HIPAA = hospital, PCI-DSS = credit card swipe, NIST = government contract.
 
 - 3 scenarios: healthcare (HIPAA), payment (PCI-DSS), federal contractor (NIST 800-53)
-- Drag-and-drop or click-to-assign: given 10 controls, student maps each to the right requirement
-- Speed-matching format with timer (competitive pressure works well cross-culturally)
-- Teaches: HIPAA safeguards, PCI-DSS requirements, NIST controls — by name not by rote
+- Click-to-assign: given a pool of 10 controls, student maps each to the right framework requirement
+- Progressive reveal: each correct match shows why that control satisfies that requirement
+- Teaches: HIPAA safeguards, PCI-DSS requirements, NIST controls — by recognition, not by rote
 - **Scoring:** 3 scenarios × ~33 pts = 100 pts
+
+**Architecture notes for next thread:**
+- Follow the phishing.js pattern: data object → sequential scenarios → quiz per scenario → debrief
+- Score code segment: `CO{n}` (e.g., CO100)
+- Register in main.js: `complianceScore`, `complianceCompleted`, page id `compliance`
+- Sidebar section: add under TRAINING after phishing
 
 ### Threat Hunt Mode (Dashboard Enhancement)
 Enhancement to: index.html / js/dashboard.js  
@@ -87,14 +95,13 @@ Sec+ Domain: 4 — Security Operations
 These aren't new pages — they're improvements to make existing content more accessible
 to learners with no prior IT background or ESL learners reading under time pressure.
 
-### Glossary / Term Tooltips
-- Every technical term in the site should show a plain-English tooltip on hover
-- Terms: IOC, CVE, CVSS, MITRE ATT&CK, TTPs, lateral movement, exfiltration, privilege escalation,
-  MFA, PAM, EDR, SIEM, SOAR, YARA/Sigma, RSA, AES, PKI, CA, HNDL, PQC, ML-KEM, etc.
-- Implementation: a `GLOSSARY` object in a new `js/glossary.js`, injected via `renderShell()`
-  or a `SENTINEL.initGlossary()` call at the bottom of each page
-- CSS: `.glossary-term` underline + tooltip on hover (`:hover::after` or a small JS tooltip div)
-- **Benefit for international students:** allows self-paced reading without stopping to Google
+### ✅ DONE — Glossary / Term Tooltips
+File: `js/glossary.js` (site-wide, loaded on all 14 HTML pages)
+
+~65 security terms with plain-English definitions. Acronyms always show their full expansion
+first in the tooltip (SIEM → "Security Information and Event Management" then the definition).
+Auto-scans text nodes via TreeWalker on DOMContentLoaded; skips nav, buttons, code blocks.
+Single delegated hover listener; tooltip positioned above the hovered term.
 
 ### Concept Map / Learning Path Overlay
 - A "What does this teach me?" button on every module card (visible on scenarios.html and dashboard)
@@ -122,8 +129,8 @@ File: `instructor.html`
 - Bonus: export to CSV for attendance/grade records
 
 ### Scenarios Page Update
-- Update `scenarios.html` to list all 13 completed modules (currently only shows the original 5 SIEM scenarios)
-- Add the 4 XSIAM pages (Detection, Assets, Endpoints, Identity) and Cryptography Playground
+- Update `scenarios.html` to list all 15 completed modules (currently only shows the original 5 SIEM scenarios)
+- Add Detection, Assets, Endpoints, Identity, Cryptography, and Phishing Forensics
   to the module listing with correct Sec+ domain tags and time estimates
 
 ### Mobile / Tablet Layout Pass

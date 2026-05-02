@@ -2936,6 +2936,97 @@ code, .mono {
   line-height: 1.6;
 }
 
+/* ── Phishing Forensics Lab ── */
+.phish-analogy {
+  background: rgba(94, 234, 212, 0.07);
+  border: 1px solid rgba(94, 234, 212, 0.25);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.phish-email-wrap {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  background: var(--bg-primary);
+}
+
+.phish-email-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--bg-2);
+}
+
+.phish-email-body {
+  padding: 1rem 1.25rem;
+}
+
+.phish-hdr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.phish-hdr-table tr + tr td { padding-top: 5px; }
+
+.phish-hdr-label {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding-right: 14px;
+  white-space: nowrap;
+  width: 72px;
+  vertical-align: top;
+  padding-top: 2px;
+}
+
+.phish-body-content a { color: var(--teal); }
+
+.phish-forensics-section {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.phish-finding {
+  background: var(--bg-primary);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.phish-finding-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.phish-finding-title.critical { color: var(--critical); }
+.phish-finding-title.high     { color: var(--high); }
+.phish-finding-title.medium   { color: var(--medium); }
+
+.phish-finding-body {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.phish-finding-body code {
+  background: var(--bg-2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.6875rem;
+  color: var(--teal);
+}
+
+.phish-finding-body strong { color: var(--text-primary); }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
 /* ── Glossary Tooltips ── */
 .glossary-term {
   border-bottom: 1px dashed rgba(94, 234, 212, 0.45);

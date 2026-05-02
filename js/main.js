@@ -30,6 +30,8 @@ const SENTINEL = {
         identityCompleted: false,
         cryptoScore: 0,
         cryptoCompleted: false,
+        phishingScore: 0,
+        phishingCompleted: false,
         totalScore: 0
       };
     } catch { return {}; }
@@ -468,9 +470,10 @@ SENTINEL.generateScoreCode = function() {
   const assets    = p.assetsCompleted    ? `AS${p.assetsScore   || 0}` : 'AS--';
   const endpoints = p.endpointsCompleted ? `EP${p.endpointsScore|| 0}` : 'EP--';
   const identity  = p.identityCompleted  ? `ID${p.identityScore || 0}` : 'ID--';
-  const crypto    = p.cryptoCompleted    ? `CR${p.cryptoScore   || 0}` : 'CR--';
+  const crypto    = p.cryptoCompleted    ? `CR${p.cryptoScore    || 0}` : 'CR--';
+  const phishing  = p.phishingCompleted  ? `PH${p.phishingScore  || 0}` : 'PH--';
   const pts       = (p.totalScore || 0);
-  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${risk}·${detection}·${assets}·${endpoints}·${identity}·${crypto}·${pts}PTS`;
+  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${risk}·${detection}·${assets}·${endpoints}·${identity}·${crypto}·${phishing}·${pts}PTS`;
 };
 
 SENTINEL.copyScoreCode = function() {
@@ -518,7 +521,8 @@ SENTINEL._getPageId = function() {
            'logs.html': 'logs', 'vulns.html': 'vulns', 'risk.html': 'risk',
            'detection.html': 'detection', 'assets.html': 'assets',
            'endpoints.html': 'endpoints', 'identity.html': 'identity',
-           'crypto.html': 'crypto' }[page] || 'dashboard';
+           'crypto.html': 'crypto',
+           'phishing.html': 'phishing' }[page] || 'dashboard';
 };
 
 SENTINEL._escHtml = function(str) {
@@ -542,6 +546,7 @@ SENTINEL.renderShell = function() {
     endpoints:   { name: 'Endpoints',            href: 'endpoints.html',         icon: '▢' },
     identity:    { name: 'Identity',             href: 'identity.html',          icon: '⚷' },
     crypto:      { name: 'Cryptography',         href: 'crypto.html',            icon: '🔐' },
+    phishing:    { name: 'Phishing Forensics',   href: 'phishing.html',          icon: '📧' },
   };
   const pageId  = this._getPageId();
   const current = PAGE_META[pageId];
@@ -582,6 +587,7 @@ SENTINEL.renderShell = function() {
         ${navItem(['vulns',       PAGE_META.vulns])}
         ${navItem(['risk',        PAGE_META.risk])}
         ${navItem(['crypto',      PAGE_META.crypto])}
+        ${navItem(['phishing',    PAGE_META.phishing])}
       </nav>
       <div class="sidebar-foot">
         <div class="user-card">
