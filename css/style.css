@@ -2935,3 +2935,58 @@ code, .mono {
   color: var(--text-muted);
   line-height: 1.6;
 }
+
+/* ── Glossary Tooltips ── */
+.glossary-term {
+  border-bottom: 1px dashed rgba(94, 234, 212, 0.45);
+  cursor: help;
+  transition: color 0.15s, border-bottom-color 0.15s;
+}
+
+.glossary-term:hover {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+}
+
+#gl-tip {
+  position: fixed;
+  z-index: 9999;
+  width: 280px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--teal);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(94, 234, 212, 0.06) inset;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+#gl-tip.gl-visible {
+  opacity: 1;
+}
+
+.gl-term {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+  font-family: var(--font-mono);
+}
+
+.gl-expand {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 7px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--line);
+}
+
+.gl-def {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  line-height: 1.55;
+}
