@@ -392,6 +392,13 @@ SENTINEL.showIntroModal = function(studentName) {
                 <div class="intro-module-desc">Build a patch queue from real CVEs across 3 organizations. ~25 min</div>
               </div>
             </div>
+            <div class="intro-module-card">
+              <div class="intro-module-num">8</div>
+              <div>
+                <div class="intro-module-name">⚖ Risk Register</div>
+                <div class="intro-module-desc">Plot 15 threats on a 5×5 matrix, choose Accept/Mitigate/Transfer/Avoid. ~30 min</div>
+              </div>
+            </div>
             <div class="intro-module-card" style="background:rgba(0,212,216,0.06);border-color:rgba(0,212,216,0.2);">
               <div class="intro-module-num" style="background:var(--medium);color:#000;">💡</div>
               <div>
@@ -403,7 +410,7 @@ SENTINEL.showIntroModal = function(studentName) {
         </div>
 
         <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:1.25rem;font-size:0.8125rem;color:var(--medium);">
-          ⏱ Full completion: ~3 hours across all modules. Your progress saves automatically to this browser.
+          ⏱ Full completion: ~4.5 hours across all 8 modules. Your progress saves automatically to this browser.
         </div>
 
         <div class="flex gap-3">

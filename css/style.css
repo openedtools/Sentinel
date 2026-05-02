@@ -2565,6 +2565,7 @@ code, .mono {
 .optimal-missed   .optimal-rank { background: rgba(244,63,94,0.12);  color: var(--critical); }
 
 .flex-wrap { flex-wrap: wrap; }
+.gap-1 { gap: 4px; }
 .main .page-sm { padding: 0; max-width: none; margin: 0; }
 
 /* ═══════════════════════════════════════════════════════════

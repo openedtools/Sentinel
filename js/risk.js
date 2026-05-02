@@ -856,7 +856,7 @@ function showFinalDebrief() {
       </div>
 
       <div class="flex gap-3 mt-4" style="justify-content:center;">
-        <a href="logs.html" class="btn btn-primary btn-lg">Log Analysis →</a>
+        <a href="scenarios.html" class="btn btn-primary btn-lg">Scenario Library →</a>
         <button onclick="resetModule()" class="btn btn-secondary">Retry Risk Register</button>
       </div>
     </div>
