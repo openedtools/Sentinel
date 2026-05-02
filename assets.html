@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Assets</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">▤ Asset Inventory</div>
+        <div class="page-subtitle">30 assets — filter, sort, and inspect · Connects to risk register concepts</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-critical" id="badge-critical-count">0 Critical</span>
+        <span class="badge badge-high"     id="badge-atrisk-count">0 At-Risk</span>
+      </div>
+    </div>
+
+    <!-- Stat row -->
+    <div class="grid-4 mb-4" id="asset-stats"></div>
+
+    <!-- Filter bar -->
+    <div class="card mb-4" style="padding:0.75rem 1.25rem;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input id="asset-search" type="text" placeholder="Search hostname, owner, OS…"
+          style="padding:5px 10px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;width:200px;outline:none;"
+          oninput="filterAssets()">
+        <select id="filter-type"        onchange="filterAssets()" style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option value="">All types</option>
+          <option>Workstation</option><option>Server</option><option>Network</option><option>Cloud</option>
+        </select>
+        <select id="filter-criticality" onchange="filterAssets()" style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option value="">All criticality</option>
+          <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <select id="filter-patch"       onchange="filterAssets()" style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option value="">All patch status</option>
+          <option>Current</option><option>Behind</option><option>Critical</option>
+        </select>
+        <button class="btn btn-sm btn-ghost" onclick="clearFilters()">Clear</button>
+        <span class="text-xs text-muted" id="filter-count" style="margin-left:auto;"></span>
+      </div>
+    </div>
+
+    <!-- Two-column: table + detail panel -->
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:1rem;margin-bottom:1.5rem;">
+
+      <!-- Asset table -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="asset-table-wrap" style="overflow-x:auto;"></div>
+      </div>
+
+      <!-- Detail panel -->
+      <div id="asset-detail-panel">
+        <div class="card" style="background:rgba(0,212,216,0.03);border-color:rgba(0,212,216,0.15);text-align:center;padding:2rem 1.5rem;">
+          <div style="font-size:2rem;margin-bottom:0.75rem;opacity:0.4;">▤</div>
+          <div class="text-xs text-muted" style="line-height:1.7;">Click any row in the asset table to see the detail card — open vulnerabilities, recent alerts, and assigned incidents.</div>
+        </div>
+        <div class="card mt-4" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+          <div class="card-title mb-2" style="color:var(--teal);">💡 Sec+ Key Concept</div>
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--text-primary);">Asset criticality</strong> drives risk impact scores. A
+            Domain Controller breach is Critical because it controls authentication for every user.
+            An unpatched workstation is High if it's used by a privileged admin.
+          </p>
+          <hr class="divider">
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--medium);">CIA Triad:</strong> Criticality reflects which component matters most —
+            Confidentiality (PII data), Integrity (domain controllers), or Availability (production servers).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training Challenge -->
+    <div class="card" style="background:rgba(94,234,212,0.02);border-color:rgba(94,234,212,0.2);">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div>
+          <div class="card-title-large">🎯 Training: Asset Classification Exercise</div>
+          <div class="text-xs text-muted mt-1">
+            Assign a criticality rating (Critical / High / Medium / Low) to each asset based on its role,
+            data sensitivity, and business function. · Sec+ Domain 2 &amp; 5 · 50 pts max
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-muted"  id="class-progress">0 / 10 rated</span>
+          <span class="badge badge-teal"   id="class-score-badge">0 pts</span>
+        </div>
+      </div>
+      <div id="classification-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+      <div id="class-submit-row" style="margin-top:1rem;display:none;">
+        <button class="btn btn-primary" onclick="submitClassification()">Submit Ratings →</button>
+      </div>
+      <div id="class-results" style="display:none;margin-top:1rem;"></div>
+    </div>
+
+    <div class="text-center text-xs text-muted mt-4" style="padding-bottom:2rem;">
+      All asset data is simulated for training purposes only.
+    </div>
+
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/assets.js"></script>
+</body>
+</html>

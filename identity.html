@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Identity</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">⚷ Identity &amp; Access</div>
+        <div class="page-subtitle">User accounts · Privilege spotlight · Risky pattern detection · Identity Risk Audit</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-critical" id="id-badge-critical">0 Critical</span>
+        <span class="badge badge-medium"   id="id-badge-nomfa">0 No MFA</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-4 mb-4" id="id-stats"></div>
+
+    <!-- Risk alert banner -->
+    <div id="id-risk-banner" class="mb-4" style="display:none;"></div>
+
+    <!-- Filter bar -->
+    <div class="card mb-4" style="padding:0.75rem 1.25rem;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input id="id-search" type="text" placeholder="Search name, role, department…"
+          style="padding:5px 10px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;width:200px;outline:none;"
+          oninput="filterUsers()">
+        <select id="id-filter-priv" onchange="filterUsers()"
+          style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option value="">All privilege levels</option>
+          <option>Domain Admin</option><option>Local Admin</option><option>Privileged User</option><option>Standard</option>
+        </select>
+        <select id="id-filter-risk" onchange="filterUsers()"
+          style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option value="">All risk levels</option>
+          <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <button class="btn btn-sm btn-ghost" onclick="clearIdFilters()">Clear</button>
+        <span class="text-xs text-muted" id="id-filter-count" style="margin-left:auto;"></span>
+      </div>
+    </div>
+
+    <!-- Two-column: user table + privileged spotlight -->
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:1rem;margin-bottom:1.5rem;">
+
+      <!-- User table -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="id-table-wrap" style="overflow-x:auto;"></div>
+      </div>
+
+      <!-- Privileged account spotlight + key concept -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="card">
+          <div class="card-title mb-3">Privileged Account Spotlight</div>
+          <div id="priv-spotlight"></div>
+        </div>
+        <div class="card" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+          <div class="card-title mb-2" style="color:var(--teal);">💡 IAM Key Concepts</div>
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--text-primary);">Least Privilege</strong> — users should have only the minimum
+            permissions needed for their role. Extra permissions = extra attack surface.
+          </p>
+          <hr class="divider">
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--medium);">PAM (Privileged Access Management)</strong> — controls, monitors,
+            and audits all privileged account usage. Domain Admin access should be just-in-time, not permanent.
+          </p>
+          <hr class="divider">
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--teal);">MFA</strong> stops 99.9% of automated credential attacks.
+            Admin accounts without MFA are the highest-value target for attackers.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training: Identity Risk Audit -->
+    <div class="card" style="background:rgba(94,234,212,0.02);border-color:rgba(94,234,212,0.2);">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div>
+          <div class="card-title-large">🎯 Training: Identity Risk Audit</div>
+          <div class="text-xs text-muted mt-1">
+            Review each account and select all violations that apply. Multiple answers may be correct for one account.
+            Sec+ Domain 1 &amp; 2 · 60 pts max
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-muted"  id="audit-progress">0 / 12 reviewed</span>
+          <span class="badge badge-teal"   id="audit-score-badge">0 pts</span>
+        </div>
+      </div>
+      <div id="audit-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+      <div id="audit-submit-row" style="margin-top:1rem;display:none;">
+        <button class="btn btn-primary" onclick="submitAudit()">Submit Audit →</button>
+      </div>
+      <div id="audit-results" style="display:none;margin-top:1rem;"></div>
+    </div>
+
+    <div class="text-center text-xs text-muted mt-4" style="padding-bottom:2rem;">
+      All identity data is simulated for training purposes only.
+    </div>
+
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/identity.js"></script>
+</body>
+</html>

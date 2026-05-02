@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Detection &amp; Threat Intel</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">◎ Detection &amp; Threat Intel</div>
+        <div class="page-subtitle">IOC browser · Threat actor profiles · Detection rules · IOC Matching Challenge</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-critical">3 ACTIVE ACTORS</span>
+        <span class="badge badge-teal">8 IOCs TRACKED</span>
+      </div>
+    </div>
+
+    <!-- Stat row -->
+    <div class="grid-4 mb-4" id="intel-stats"></div>
+
+    <!-- Main two-column layout -->
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:1rem;margin-bottom:1rem;">
+
+      <!-- Left: IOC Browser -->
+      <div>
+        <div class="card">
+          <div class="card-header" style="margin-bottom:0.875rem;">
+            <div>
+              <div class="card-title-large">IOC Browser</div>
+              <div class="text-xs text-muted mt-1">Indicators of Compromise active in this exercise</div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input id="ioc-search" type="text" placeholder="Search IOCs…"
+                style="padding:5px 10px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;width:160px;outline:none;"
+                oninput="filterIOCs()">
+              <select id="ioc-type-filter" onchange="filterIOCs()"
+                style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+                <option value="">All types</option>
+                <option value="IPv4">IPv4</option>
+                <option value="SHA-256">SHA-256</option>
+                <option value="Domain">Domain</option>
+                <option value="Filename">Filename</option>
+                <option value="CVE">CVE</option>
+                <option value="Email">Email</option>
+              </select>
+            </div>
+          </div>
+          <div id="ioc-table"></div>
+        </div>
+
+        <!-- Detection Rule Library -->
+        <div class="card mt-4">
+          <div class="card-header" style="margin-bottom:0.875rem;">
+            <div>
+              <div class="card-title-large">Detection Rule Library</div>
+              <div class="text-xs text-muted mt-1">Active YARA / Sigma-style behavioral rules</div>
+            </div>
+            <span class="badge badge-teal">6 ACTIVE</span>
+          </div>
+          <div id="rules-list"></div>
+        </div>
+      </div>
+
+      <!-- Right: Threat Actor Profiles -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="card">
+          <div class="card-title mb-3">Threat Actor Profiles</div>
+          <div id="actor-profiles"></div>
+        </div>
+        <div class="card" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+          <div class="card-title mb-2" style="color:var(--teal);">💡 Sec+ Key Concept</div>
+          <p class="text-xs" style="line-height:1.7;">
+            An <strong style="color:var(--text-primary);">IOC (Indicator of Compromise)</strong> is forensic evidence
+            that a system may have been breached — IP addresses, file hashes, malicious domains, registry keys.
+          </p>
+          <hr class="divider">
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--text-primary);">Threat Intelligence</strong> is context that makes IOCs actionable:
+            who is attacking, with what tools, for what motive. Feeds like VirusTotal, GreyNoise, and MISP
+            automate this enrichment.
+          </p>
+          <hr class="divider">
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--teal);">TLP (Traffic Light Protocol)</strong> — RED: single org only ·
+            AMBER: limited sharing · GREEN: community sharing · CLEAR: public
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Training Challenge -->
+    <div class="card" style="background:rgba(94,234,212,0.02);border-color:rgba(94,234,212,0.2);">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div>
+          <div class="card-title-large">🎯 Training: IOC Matching Challenge</div>
+          <div class="text-xs text-muted mt-1">
+            Select an IOC chip, then click the alert it explains. Match all 6 to earn points. · Sec+ Domain 2 &amp; 4
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-muted" id="challenge-progress">0 / 6 matched</span>
+          <span class="badge badge-teal" id="challenge-score-badge">0 pts</span>
+        </div>
+      </div>
+
+      <!-- IOC Chips -->
+      <div style="margin-bottom:1rem;">
+        <div class="text-xs text-muted mb-2" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Step 1 — Select an IOC</div>
+        <div id="ioc-chips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+
+      <!-- Alert targets -->
+      <div>
+        <div class="text-xs text-muted mb-2" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Step 2 — Click the alert this IOC explains</div>
+        <div id="alert-targets" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+      </div>
+
+      <!-- Submit -->
+      <div id="challenge-submit-row" style="margin-top:1rem;display:none;">
+        <button class="btn btn-primary" onclick="submitChallenge()">Check My Answers →</button>
+      </div>
+
+      <!-- Results -->
+      <div id="challenge-results" style="display:none;margin-top:1rem;"></div>
+    </div>
+
+    <div class="text-center text-xs text-muted mt-4" style="padding-bottom:2rem;">
+      All threat actors, IOCs, and scenarios are simulated for training purposes only.
+    </div>
+
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/detection.js"></script>
+</body>
+</html>
