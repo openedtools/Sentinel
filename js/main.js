@@ -18,6 +18,8 @@ const SENTINEL = {
         logsCompleted: false,
         vulnsScore: 0,
         vulnsCompleted: false,
+        riskScore: 0,
+        riskCompleted: false,
         totalScore: 0
       };
     } catch { return {}; }
@@ -444,8 +446,9 @@ SENTINEL.generateScoreCode = function() {
   const scns    = `SCN${(p.scenariosCompleted || []).length}/5`;
   const logs    = p.logsCompleted  ? `L${p.logsScore  || 0}` : 'L--';
   const vulns   = p.vulnsCompleted ? `V${p.vulnsScore  || 0}` : 'V--';
+  const risk    = p.riskCompleted  ? `R${p.riskScore  || 0}` : 'R--';
   const pts     = (p.totalScore || 0);
-  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${pts}PTS`;
+  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${risk}·${pts}PTS`;
 };
 
 SENTINEL.copyScoreCode = function() {
@@ -490,7 +493,7 @@ SENTINEL._getPageId = function() {
   return { 'index.html': 'dashboard', 'incident-response.html': 'incidents',
            'triage.html': 'triage', 'investigate.html': 'investigate',
            'remediate.html': 'remediate', 'scenarios.html': 'scenarios',
-           'logs.html': 'logs', 'vulns.html': 'vulns' }[page] || 'dashboard';
+           'logs.html': 'logs', 'vulns.html': 'vulns', 'risk.html': 'risk' }[page] || 'dashboard';
 };
 
 SENTINEL._escHtml = function(str) {
@@ -508,6 +511,7 @@ SENTINEL.renderShell = function() {
     scenarios:   { name: 'Scenario Library',     href: 'scenarios.html',         icon: '📋' },
     logs:        { name: 'Log Analysis',         href: 'logs.html',              icon: '📜' },
     vulns:       { name: 'Vuln Prioritization',  href: 'vulns.html',             icon: '🎯' },
+    risk:        { name: 'Risk Register',        href: 'risk.html',              icon: '⚖' },
   };
   const pageId  = this._getPageId();
   const current = PAGE_META[pageId];
@@ -546,6 +550,7 @@ SENTINEL.renderShell = function() {
         ${navItem(['scenarios',   PAGE_META.scenarios])}
         ${navItem(['logs',        PAGE_META.logs])}
         ${navItem(['vulns',       PAGE_META.vulns])}
+        ${navItem(['risk',        PAGE_META.risk])}
       </nav>
       <div class="sidebar-foot">
         <div class="user-card">
