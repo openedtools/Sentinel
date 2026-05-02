@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cryptography Playground — SENTINEL</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">🔐 Cryptography Playground</div>
+        <div class="page-subtitle">Security+ Domain 1 · General Security Concepts · 5 labs · 100 pts max</div>
+      </div>
+      <span class="badge badge-info">Domain 1 — 12% of Sec+ exam</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="card mb-4" style="padding:1rem 1.25rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+        <span class="text-xs text-muted" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Lab Progress</span>
+        <span id="crypto-progress-label" class="text-xs font-mono" style="color:var(--teal);">0 / 5 labs</span>
+      </div>
+      <div style="height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden;">
+        <div id="crypto-progress-fill" style="height:100%;width:0%;background:var(--teal);border-radius:3px;transition:width 0.4s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem;align-items:start;">
+      <!-- Left: lab content -->
+      <div id="crypto-main"></div>
+
+      <!-- Right: score + lab list -->
+      <div id="crypto-right-panel" style="position:sticky;top:1rem;"></div>
+    </div>
+
+  </div><!-- .main -->
+</div><!-- .app -->
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/crypto.js"></script>
+</body>
+</html>

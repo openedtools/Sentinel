@@ -2757,3 +2757,181 @@ code, .mono {
   margin-bottom: 4px;
 }
 .reveal-item-body { color: var(--text-muted); line-height: 1.5; }
+
+/* ── CRYPTOGRAPHY PLAYGROUND ── */
+
+/* Certificate chain */
+.cert-chain-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+.cert-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  min-width: 110px;
+  text-align: center;
+}
+.cert-node:hover { border-color: var(--teal); background: rgba(94,234,212,.06); }
+.cert-node.cert-active { border-color: var(--teal); background: rgba(94,234,212,.1); }
+.cert-node-icon { font-size: 1.5rem; }
+.cert-node-name { font-size: 0.75rem; font-weight: 700; color: var(--text-primary); }
+.cert-node-type { font-size: 0.65rem; color: var(--text-muted); }
+.cert-connector {
+  width: 32px;
+  height: 2px;
+  background: var(--line);
+  flex-shrink: 0;
+  margin: 0 4px;
+  position: relative;
+}
+.cert-connector::after {
+  content: '›';
+  position: absolute;
+  right: -8px;
+  top: -10px;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* Quantum verdict badges */
+.quantum-safe {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(74,222,128,.12);
+  color: var(--ok);
+}
+.quantum-warn {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(250,204,21,.12);
+  color: var(--medium);
+}
+.quantum-vuln {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(244,63,94,.12);
+  color: var(--critical);
+}
+
+/* HNDL Timeline */
+.hndl-timeline {
+  position: relative;
+  height: 64px;
+  margin: 1.25rem 0 0.5rem;
+}
+.hndl-timeline::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ok) 0%, var(--medium) 40%, var(--high) 65%, var(--critical) 100%);
+  border-radius: 2px;
+}
+.hndl-marker {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.hndl-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.hndl-year {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  white-space: nowrap;
+  margin-top: 4px;
+}
+.hndl-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Algorithm threat matrix table */
+.threat-matrix {
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+.threat-matrix th {
+  background: var(--bg-primary);
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--line);
+}
+.threat-matrix td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-muted);
+}
+.threat-matrix tr:last-child td { border-bottom: none; }
+
+/* NIST PQC standard cards */
+.pqc-card {
+  background: var(--bg-2);
+  border: 1px solid rgba(94,234,212,.25);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pqc-card-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--teal);
+  font-family: var(--font-mono);
+}
+.pqc-card-fips {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.pqc-card-body {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
