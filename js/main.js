@@ -20,6 +20,14 @@ const SENTINEL = {
         vulnsCompleted: false,
         riskScore: 0,
         riskCompleted: false,
+        detectionScore: 0,
+        detectionCompleted: false,
+        assetsScore: 0,
+        assetsCompleted: false,
+        endpointsScore: 0,
+        endpointsCompleted: false,
+        identityScore: 0,
+        identityCompleted: false,
         totalScore: 0
       };
     } catch { return {}; }
@@ -453,9 +461,13 @@ SENTINEL.generateScoreCode = function() {
   const scns    = `SCN${(p.scenariosCompleted || []).length}/5`;
   const logs    = p.logsCompleted  ? `L${p.logsScore  || 0}` : 'L--';
   const vulns   = p.vulnsCompleted ? `V${p.vulnsScore  || 0}` : 'V--';
-  const risk    = p.riskCompleted  ? `R${p.riskScore  || 0}` : 'R--';
-  const pts     = (p.totalScore || 0);
-  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${risk}·${pts}PTS`;
+  const risk      = p.riskCompleted      ? `R${p.riskScore      || 0}` : 'R--';
+  const detection = p.detectionCompleted ? `D${p.detectionScore || 0}` : 'D--';
+  const assets    = p.assetsCompleted    ? `AS${p.assetsScore   || 0}` : 'AS--';
+  const endpoints = p.endpointsCompleted ? `EP${p.endpointsScore|| 0}` : 'EP--';
+  const identity  = p.identityCompleted  ? `ID${p.identityScore || 0}` : 'ID--';
+  const pts       = (p.totalScore || 0);
+  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${risk}·${detection}·${assets}·${endpoints}·${identity}·${pts}PTS`;
 };
 
 SENTINEL.copyScoreCode = function() {
@@ -500,7 +512,9 @@ SENTINEL._getPageId = function() {
   return { 'index.html': 'dashboard', 'incident-response.html': 'incidents',
            'triage.html': 'triage', 'investigate.html': 'investigate',
            'remediate.html': 'remediate', 'scenarios.html': 'scenarios',
-           'logs.html': 'logs', 'vulns.html': 'vulns', 'risk.html': 'risk' }[page] || 'dashboard';
+           'logs.html': 'logs', 'vulns.html': 'vulns', 'risk.html': 'risk',
+           'detection.html': 'detection', 'assets.html': 'assets',
+           'endpoints.html': 'endpoints', 'identity.html': 'identity' }[page] || 'dashboard';
 };
 
 SENTINEL._escHtml = function(str) {
@@ -519,6 +533,10 @@ SENTINEL.renderShell = function() {
     logs:        { name: 'Log Analysis',         href: 'logs.html',              icon: '📜' },
     vulns:       { name: 'Vuln Prioritization',  href: 'vulns.html',             icon: '🎯' },
     risk:        { name: 'Risk Register',        href: 'risk.html',              icon: '⚖' },
+    detection:   { name: 'Detection & Threat Intel', href: 'detection.html',     icon: '◎' },
+    assets:      { name: 'Assets',               href: 'assets.html',            icon: '▤' },
+    endpoints:   { name: 'Endpoints',            href: 'endpoints.html',         icon: '▢' },
+    identity:    { name: 'Identity',             href: 'identity.html',          icon: '⚷' },
   };
   const pageId  = this._getPageId();
   const current = PAGE_META[pageId];
@@ -545,11 +563,11 @@ SENTINEL.renderShell = function() {
         <div class="nav-section-label">OPERATIONS</div>
         ${navItem(['dashboard', PAGE_META.dashboard])}
         ${navItem(['incidents', PAGE_META.incidents])}
-        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;" title="Coming soon"><span class="nav-icon">◎</span>Detection &amp; Threat Intel</a>
+        ${navItem(['detection', PAGE_META.detection])}
         <div class="nav-section-label" style="margin-top:0.5rem;">ASSETS</div>
-        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;"><span class="nav-icon">▤</span>Assets</a>
-        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;"><span class="nav-icon">▢</span>Endpoints</a>
-        <a class="nav-item nav-item-dim" style="opacity:.38;pointer-events:none;cursor:default;"><span class="nav-icon">⚷</span>Identity</a>
+        ${navItem(['assets',    PAGE_META.assets])}
+        ${navItem(['endpoints', PAGE_META.endpoints])}
+        ${navItem(['identity',  PAGE_META.identity])}
         <div class="nav-section-label" style="margin-top:0.5rem;">TRAINING</div>
         ${navItem(['triage',      PAGE_META.triage])}
         ${navItem(['investigate', PAGE_META.investigate])}

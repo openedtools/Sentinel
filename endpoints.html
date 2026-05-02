@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Endpoints</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">▢ Endpoint Management</div>
+        <div class="page-subtitle">EDR telemetry · Health status · Endpoint Triage Drill</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="badge badge-ok"       id="ep-badge-healthy">0 Healthy</span>
+        <span class="badge badge-medium"   id="ep-badge-atrisk">0 At-Risk</span>
+        <span class="badge badge-critical" id="ep-badge-comp">0 Compromised</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-4 mb-4" id="ep-stats"></div>
+
+    <!-- Filter bar -->
+    <div class="card mb-4" style="padding:0.75rem 1.25rem;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input id="ep-search" type="text" placeholder="Search hostname, user, OS…"
+          style="padding:5px 10px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;width:200px;outline:none;"
+          oninput="filterEndpoints()">
+        <select id="ep-filter-health" onchange="filterEndpoints()"
+          style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option value="">All health states</option>
+          <option>Healthy</option><option>At-Risk</option><option>Compromised</option><option>Quarantined</option>
+        </select>
+        <select id="ep-filter-av" onchange="filterEndpoints()"
+          style="padding:5px 8px;background:var(--bg-2);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option value="">AV status — all</option>
+          <option>Running</option><option>Disabled</option><option>Error</option>
+        </select>
+        <button class="btn btn-sm btn-ghost" onclick="clearEpFilters()">Clear</button>
+        <span class="text-xs text-muted" id="ep-filter-count" style="margin-left:auto;"></span>
+      </div>
+    </div>
+
+    <!-- Endpoint grid + detail panel -->
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:1rem;margin-bottom:1.5rem;">
+
+      <div id="ep-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;align-content:start;"></div>
+
+      <div id="ep-detail-panel">
+        <div class="card" style="background:rgba(74,222,128,0.03);border-color:rgba(74,222,128,0.15);text-align:center;padding:2rem 1.5rem;">
+          <div style="font-size:2rem;margin-bottom:0.75rem;opacity:0.4;">▢</div>
+          <div class="text-xs text-muted" style="line-height:1.7;">Click any endpoint card to inspect its EDR telemetry — process tree, network connections, and recent file events.</div>
+        </div>
+        <div class="card mt-4" style="background:rgba(0,212,216,0.04);border-color:rgba(0,212,216,0.2);">
+          <div class="card-title mb-2" style="color:var(--teal);">💡 EDR Key Concepts</div>
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--text-primary);">EDR (Endpoint Detection &amp; Response)</strong> records every
+            process, network connection, and file event on a host — far more than just AV signatures.
+          </p>
+          <hr class="divider">
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--medium);">Living-off-the-Land (LotL)</strong> attacks use built-in tools
+            (powershell.exe, wmic.exe, certutil.exe) to avoid AV detection. EDR behavioral analysis catches these.
+          </p>
+          <hr class="divider">
+          <p class="text-xs" style="line-height:1.7;">
+            <strong style="color:var(--teal);">Parent Process Anomaly:</strong> Word.exe spawning cmd.exe is suspicious.
+            explorer.exe spawning notepad.exe is normal.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training Drill -->
+    <div class="card" style="background:rgba(94,234,212,0.02);border-color:rgba(94,234,212,0.2);">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <div>
+          <div class="card-title-large">🎯 Training: Endpoint Triage Drill</div>
+          <div class="text-xs text-muted mt-1">
+            Review the EDR telemetry snapshot for each endpoint and classify it as
+            <strong style="color:var(--ok);">Clean</strong>,
+            <strong style="color:var(--medium);">Suspicious</strong>, or
+            <strong style="color:var(--critical);">Compromised</strong>. · Sec+ Domain 4 · 80 pts max
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-muted"  id="drill-progress">0 / 8 triaged</span>
+          <span class="badge badge-teal"   id="drill-score-badge">0 pts</span>
+        </div>
+      </div>
+      <div id="drill-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+      <div id="drill-submit-row" style="margin-top:1rem;display:none;">
+        <button class="btn btn-primary" onclick="submitDrill()">Submit Classifications →</button>
+      </div>
+      <div id="drill-results" style="display:none;margin-top:1rem;"></div>
+    </div>
+
+    <div class="text-center text-xs text-muted mt-4" style="padding-bottom:2rem;">
+      All endpoint data and EDR telemetry is simulated for training purposes only.
+    </div>
+
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/endpoints.js"></script>
+</body>
+</html>
