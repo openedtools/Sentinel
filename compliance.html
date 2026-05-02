@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compliance Control Mapper — SENTINEL</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">📋 Compliance Control Mapper</div>
+        <div class="page-subtitle">Security+ Domain 5 · Security Program Management · 3 frameworks · 99 pts max</div>
+      </div>
+      <span class="badge badge-medium">Domain 5 — 20% of Sec+ exam</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="card mb-4" style="padding:1rem 1.25rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+        <span class="text-xs text-muted" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Scenario Progress</span>
+        <span id="comp-progress-label" class="text-xs font-mono" style="color:var(--teal);">0 / 3 scenarios</span>
+      </div>
+      <div style="height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden;">
+        <div id="comp-progress-fill" style="height:100%;width:0%;background:var(--teal);border-radius:3px;transition:width 0.4s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem;align-items:start;">
+      <!-- Left: scenario content -->
+      <div id="compliance-main"></div>
+
+      <!-- Right: score + scenario list -->
+      <div id="compliance-right-panel" style="position:sticky;top:1rem;"></div>
+    </div>
+
+  </div><!-- .main -->
+</div><!-- .app -->
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/glossary.js"></script>
+<script src="js/compliance.js"></script>
+</body>
+</html>

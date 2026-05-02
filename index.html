@@ -428,9 +428,9 @@
       <div class="card mt-4" style="background:rgba(0,212,216,0.02);border-color:rgba(0,212,216,0.15);">
         <div class="flex justify-between items-center mb-3">
           <div class="card-title-large">Training Modules — Start Here</div>
-          <div class="text-xs text-muted">Complete in order for best results</div>
+          <div class="text-xs text-muted">Complete in order for best results · Security+ aligned</div>
         </div>
-        <div class="grid-4">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.875rem;">
           <a href="triage.html" style="text-decoration:none;">
             <div class="module-launch-card" style="border-color:rgba(0,212,216,0.3);background:var(--teal-glow);">
               <div class="module-step">1</div>
@@ -445,7 +445,7 @@
               <div class="module-step">2</div>
               <div style="font-size:1.75rem;margin-bottom:8px;">🔍</div>
               <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Incident Investigation</div>
-              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Walk through 5 full attack scenarios drawn directly from Day 3 — polymorphic malware, deepfakes, and more.</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Walk through 5 full attack scenarios — polymorphic malware, deepfakes, agentic AI, and more.</div>
               <span class="badge badge-beginner">Beginner · ~25 min</span>
             </div>
           </a>
@@ -463,8 +463,44 @@
               <div class="module-step">4</div>
               <div style="font-size:1.75rem;margin-bottom:8px;">📋</div>
               <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Scenario Library</div>
-              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">5 full scenarios — polymorphic malware, prompt injection, deepfake fraud, agentic AI, and supply chain attacks.</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">5 full scenarios — polymorphic malware, prompt injection, deepfake fraud, supply chain attacks.</div>
               <span class="badge badge-beginner">All Levels</span>
+            </div>
+          </a>
+          <a href="logs.html" style="text-decoration:none;">
+            <div class="module-launch-card" style="border-color:rgba(56,189,248,0.25);background:rgba(56,189,248,0.04);">
+              <div class="module-step" style="background:rgba(56,189,248,0.15);color:var(--low);border-color:rgba(56,189,248,0.3);">5</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">📜</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Log Analysis</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Click suspicious lines in raw Windows, Linux, firewall, DNS, and web server logs. 5 challenges.</div>
+              <span class="badge badge-intermediate">Sec+ Domain 2 &amp; 4 · ~30 min</span>
+            </div>
+          </a>
+          <a href="vulns.html" style="text-decoration:none;">
+            <div class="module-launch-card" style="border-color:rgba(139,92,246,0.25);background:rgba(139,92,246,0.04);">
+              <div class="module-step" style="background:rgba(139,92,246,0.15);color:#a78bfa;border-color:rgba(139,92,246,0.3);">6</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">🎯</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Vuln Prioritization</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Build a patch queue from real CVEs across government, hospital, and defense contractor scenarios.</div>
+              <span class="badge badge-intermediate">Sec+ Domain 2 · ~25 min</span>
+            </div>
+          </a>
+          <a href="risk.html" style="text-decoration:none;">
+            <div class="module-launch-card" style="border-color:rgba(251,146,60,0.25);background:rgba(251,146,60,0.04);">
+              <div class="module-step" style="background:rgba(251,146,60,0.15);color:var(--high);border-color:rgba(251,146,60,0.3);">7</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">⚖</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Risk Register</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Plot 15 real threats on a 5×5 risk matrix, choose Accept/Mitigate/Transfer/Avoid, and pick controls.</div>
+              <span class="badge badge-intermediate">Sec+ Domain 5 · ~30 min</span>
+            </div>
+          </a>
+          <a href="compliance.html" style="text-decoration:none;">
+            <div class="module-launch-card" style="border-color:rgba(99,102,241,0.25);background:rgba(99,102,241,0.04);">
+              <div class="module-step" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.3);">8</div>
+              <div style="font-size:1.75rem;margin-bottom:8px;">📋</div>
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;font-size:0.9375rem;">Compliance Control Mapper</div>
+              <div class="text-xs text-muted" style="line-height:1.5;margin-bottom:10px;">Map HIPAA, PCI-DSS, and NIST 800-53 controls to framework requirements across 3 real-world scenarios.</div>
+              <span class="badge badge-intermediate">Sec+ Domain 5 · ~25 min</span>
             </div>
           </a>
         </div>
@@ -481,6 +517,9 @@
     <!-- Incidents flow view (populated by Slice 4) -->
     <div id="view-incidents" style="display:none;"></div>
 
+    <!-- Threat Hunt Mode view (populated by buildHuntMode) -->
+    <div id="view-hunt" style="display:none;"></div>
+
   </div><!-- .main -->
 </div><!-- .app -->
 
@@ -495,6 +534,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
+<script src="js/glossary.js"></script>
 <script src="js/dashboard.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {

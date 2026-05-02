@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Log Decoding Challenge</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <div id="sb"></div>
+  <div class="main">
+    <div id="topbar-mount"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem;min-width:0;">
+
+      <!-- ── Left: Main challenge area ── -->
+      <div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">📜 Log Decoding Challenge</div>
+            <div class="page-subtitle">5 challenges · Click suspicious log lines, then identify the attack type. Covers Security+ Domains 2 & 4.</div>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="card mb-4" style="padding:0.875rem 1.25rem;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs text-muted">Progress</span>
+            <span class="text-xs font-mono" id="log-progress-label">0 / 5 challenges</span>
+          </div>
+          <div class="progress-bar" style="height:6px;">
+            <div class="progress-fill" id="log-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Dynamic challenge content -->
+        <div id="log-main"></div>
+
+      </div>
+
+      <!-- ── Right: Score + reference panel ── -->
+      <div style="position:sticky;top:72px;height:fit-content;display:flex;flex-direction:column;gap:1rem;" id="log-right-panel">
+        <!-- populated by updateRightPanel() -->
+      </div>
+
+    </div>
+
+  </div><!-- .main -->
+</div><!-- .app -->
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/glossary.js"></script>
+<script src="js/logs.js"></script>
+</body>
+</html>

@@ -1293,3 +1293,405 @@ const SENTINEL_TWEAKS = (function() {
 })();
 
 document.addEventListener('DOMContentLoaded', initDashboard);
+
+/* ══════════════════════════════════════════
+   THREAT HUNT MODE
+   Students filter the live log to find evidence
+   supporting or refuting a threat hypothesis.
+   3 hunts: 2 real threats + 1 authorized activity.
+   ══════════════════════════════════════════ */
+
+const HUNT_SCENARIOS = [
+  {
+    id:        'dns-tunnel',
+    icon:      '🌐',
+    title:     'Hunt 1 — Suspected DNS Exfiltration',
+    badge:     'Domain 4 · Threat Hunting',
+    hypothesis:
+      'Threat Intel received a tip that a newly registered external domain ' +
+      '<strong style="color:var(--high);font-family:var(--font-mono);">*.exfilbase64.co</strong> ' +
+      'is associated with known C2 infrastructure. Hunt the live log for any ' +
+      'internal host communicating with this domain.',
+    hint:      'Try filtering by keyword: <code>DNS</code>, <code>FILE-SERVER</code>, or <code>exfil</code>',
+    evidenceKeys: ['exfilbase64', 'DNS tunnel'],
+    correctVerdict: 'confirm',
+    explanation:
+      '847 DNS queries to subdomains of a newly registered domain is a textbook ' +
+      '<strong>DNS tunneling</strong> signature. Attackers encode stolen data as ' +
+      'subdomain labels — each query carries a chunk of data out through port 53, ' +
+      'which most firewalls leave open. FILE-SERVER-01 was actively exfiltrating. ' +
+      'This maps to MITRE ATT&CK <strong>T1048.003 — Exfiltration Over Alternative Protocol: DNS</strong>.',
+  },
+  {
+    id:        'lsass-dump',
+    icon:      '🔐',
+    title:     'Hunt 2 — Suspected Credential Theft on DC-01',
+    badge:     'Domain 4 · Threat Hunting',
+    hypothesis:
+      'An endpoint sensor fired on the domain controller ' +
+      '<strong style="color:var(--high);font-family:var(--font-mono);">DC-01</strong> ' +
+      'for an unknown process. Hunt the log for evidence of credential access or ' +
+      'memory manipulation on that host.',
+    hint:      'Try filtering by keyword: <code>LSASS</code>, <code>DC-01</code>, or <code>credential</code>',
+    evidenceKeys: ['LSASS', 'credential dump', 'wdcu'],
+    correctVerdict: 'confirm',
+    explanation:
+      'LSASS (Local Security Authority Subsystem Service) stores all active ' +
+      'credential hashes in memory. A third-party process reading LSASS is the ' +
+      'signature of tools like <strong>Mimikatz</strong>. ' +
+      '<code>wdcu.exe</code> is masquerading as a Windows Defender component ' +
+      '— process name spoofing is Defense Evasion (MITRE T1036). ' +
+      'Once credentials are dumped, every account on the domain is compromised.',
+  },
+  {
+    id:        'false-positive',
+    icon:      '☁️',
+    title:     'Hunt 3 — High-Volume Azure API Calls',
+    badge:     'Domain 4 · Threat Hunting',
+    hypothesis:
+      'An anomaly alert fired for <strong style="color:var(--high);font-family:var(--font-mono);">312 Azure Resource Manager queries in 31 seconds</strong> ' +
+      'from an internal application. Hunt the log to determine whether this is ' +
+      'a real threat or authorized activity.',
+    hint:      'Try filtering by keyword: <code>Azure</code>, <code>monitor</code>, or <code>CHG</code>',
+    evidenceKeys: ['Azure RM', 'legacy-monitor', 'CHG-0417'],
+    correctVerdict: 'deny',
+    explanation:
+      '<strong>This is authorized activity — good call not escalating.</strong> ' +
+      'Two log entries together tell the full story: ' +
+      '(1) the API calls come from <code>legacy-monitor-app</code>, a known authorized application, and ' +
+      '(2) change record <code>CHG-0417</code> explicitly covers nightly Azure Backup activity for this window. ' +
+      'High API volume from a monitoring tool during a maintenance window is expected. ' +
+      'Escalating this wastes analyst time and contributes to <strong>alert fatigue</strong> — ' +
+      'a hunter\'s job is to distinguish anomalous-but-authorized from anomalous-and-malicious.',
+  },
+];
+
+/* ── Hunt state ── */
+let huntIdx      = 0;
+let huntAnswered = false;
+let huntFiltered = false;
+
+/* ── Entry point ── */
+function buildHuntMode(container) {
+  huntIdx      = 0;
+  huntAnswered = false;
+  huntFiltered = false;
+
+  /* Page header */
+  const header = document.createElement('div');
+  header.className = 'page-header';
+  header.innerHTML = `
+    <div>
+      <div class="page-title">🎯 Threat Hunt Mode</div>
+      <div class="page-subtitle">Security+ Domain 4 · Security Operations · 3 hunts · unscored</div>
+    </div>
+    <span class="badge badge-medium">Domain 4 — 28% of Sec+ exam</span>`;
+  container.appendChild(header);
+
+  /* Progress bar */
+  const progCard = document.createElement('div');
+  progCard.className = 'card mb-4';
+  progCard.style.padding = '1rem 1.25rem';
+  progCard.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+      <span class="text-xs text-muted" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Hunt Progress</span>
+      <span id="hunt-progress-label" class="text-xs font-mono" style="color:var(--teal);">0 / 3 hunts</span>
+    </div>
+    <div style="height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden;">
+      <div id="hunt-progress-fill" style="height:100%;width:0%;background:var(--high);border-radius:3px;transition:width 0.4s ease;"></div>
+    </div>`;
+  container.appendChild(progCard);
+
+  /* Main content area */
+  const main = document.createElement('div');
+  main.id = 'hunt-main';
+  container.appendChild(main);
+
+  renderHunt(0);
+}
+
+/* ── Render one hunt scenario ── */
+function renderHunt(idx) {
+  huntIdx      = idx;
+  huntAnswered = false;
+  huntFiltered = false;
+
+  const main = document.getElementById('hunt-main');
+  if (!main) return;
+  main.innerHTML = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (idx === 3) { renderHuntDebrief(); return; }
+
+  const sc = HUNT_SCENARIOS[idx];
+
+  /* Build log entries HTML from LIVE_LOG.entries */
+  const logEntries = LIVE_LOG.entries.map(e => {
+    const isEvidence = sc.evidenceKeys.some(k => e.msg.includes(k));
+    return `<div class="hunt-log-entry ${e.cls}${isEvidence ? ' hunt-evidence-candidate' : ''}" data-msg="${e.msg.replace(/"/g, '&quot;')}">
+      <span style="color:var(--text-dim);margin-right:8px;">--:--:--</span>${e.msg}
+    </div>`;
+  }).join('');
+
+  main.innerHTML = `
+    <div class="card mb-4 animate-fade-in">
+      <div class="card-header" style="align-items:flex-start;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;">
+          <span style="font-size:1.4rem;">${sc.icon}</span>
+          <div>
+            <div style="font-size:0.9375rem;font-weight:700;color:var(--text-primary);">${sc.title}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">${sc.badge}</div>
+          </div>
+        </div>
+        <span class="badge badge-high" style="flex-shrink:0;">Hunt ${idx + 1} / 3</span>
+      </div>
+
+      <!-- Hypothesis -->
+      <div class="hunt-hypothesis">
+        <div class="text-xs mb-2" style="color:var(--high);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
+          🔎 Hypothesis
+        </div>
+        <div class="text-sm" style="line-height:1.75;">${sc.hypothesis}</div>
+      </div>
+
+      <!-- Analogy / mindset card -->
+      <div style="background:rgba(94,234,212,0.05);border:1px solid rgba(94,234,212,0.15);border-radius:var(--radius-md);padding:0.875rem 1rem;margin-bottom:1.25rem;">
+        <div class="text-xs mb-1" style="color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Threat Hunter Mindset</div>
+        <div class="text-xs text-muted" style="line-height:1.7;">
+          Unlike reactive alerting, threat hunting starts with a <em>hypothesis</em> — then you go look for evidence.
+          Use the log filter below to narrow the stream. Evidence entries will highlight
+          <span style="color:var(--high);font-weight:600;">amber</span> when they match your search.
+          ${sc.hint ? `<br><br><strong style="color:var(--text-primary);">Hint:</strong> ${sc.hint}` : ''}
+        </div>
+      </div>
+
+      <!-- Filter strip -->
+      <div class="text-xs text-muted mb-2" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
+        🔍 Filter Live Log
+      </div>
+      <div class="hunt-filter-strip" id="hunt-filter-strip-${idx}">
+        <input type="text" id="hunt-kw-${idx}" class="hunt-filter-input" placeholder="Filter by keyword…"
+          oninput="applyHuntFilters(${idx})" />
+        <button class="hunt-sev-chip" data-sev="log-crit" onclick="toggleHuntSevChip(this, ${idx})">● CRITICAL</button>
+        <button class="hunt-sev-chip" data-sev="log-high" onclick="toggleHuntSevChip(this, ${idx})">● HIGH</button>
+        <button class="hunt-sev-chip" data-sev="log-ok"   onclick="toggleHuntSevChip(this, ${idx})">● RESOLVED</button>
+        <button class="hunt-sev-chip" data-sev="log-info" onclick="toggleHuntSevChip(this, ${idx})">● INFO</button>
+        <button class="hunt-sev-chip" style="color:var(--text-dim);" onclick="clearHuntFilters(${idx})">✕ Clear</button>
+      </div>
+
+      <!-- Log feed -->
+      <div class="hunt-log-feed" id="hunt-log-${idx}">${logEntries}</div>
+
+      <!-- Evidence count -->
+      <div id="hunt-evidence-note-${idx}" class="text-xs text-muted mb-3" style="min-height:18px;"></div>
+
+      <!-- Verdict (hidden until filter used) -->
+      <div id="hunt-verdict-${idx}" style="display:none;">
+        <div class="text-xs text-muted mb-2" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
+          Your Verdict
+        </div>
+        <div class="hunt-verdict-area">
+          <button class="btn btn-primary" style="font-size:13px;background:rgba(74,222,128,0.15);border-color:var(--ok);color:var(--ok);"
+            onclick="submitHuntVerdict(${idx}, 'confirm')">✓ Confirmed — real threat</button>
+          <button class="btn" style="font-size:13px;border-color:var(--critical);color:var(--critical);"
+            onclick="submitHuntVerdict(${idx}, 'deny')">✗ Denied — false positive</button>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      <div id="hunt-feedback-${idx}" style="display:none;margin-top:1rem;"></div>
+
+      <!-- Next button -->
+      <div style="margin-top:1rem;">
+        <button id="hunt-next-btn-${idx}" class="btn btn-primary" style="display:none;"
+          onclick="renderHunt(${idx + 1})">
+          ${idx < 2 ? 'Next Hunt →' : 'View Summary →'}
+        </button>
+      </div>
+    </div>`;
+
+  updateHuntProgress();
+}
+
+/* ── Toggle a severity filter chip ── */
+function toggleHuntSevChip(chipEl, idx) {
+  const sev = chipEl.dataset.sev;
+  const activeClass = {
+    'log-crit': 'active-crit',
+    'log-high': 'active-high',
+    'log-ok':   'active-ok',
+    'log-info': 'active-info',
+  }[sev] || '';
+  chipEl.classList.toggle(activeClass);
+  applyHuntFilters(idx);
+}
+
+/* ── Clear all filters ── */
+function clearHuntFilters(idx) {
+  const kw = document.getElementById('hunt-kw-' + idx);
+  if (kw) kw.value = '';
+  document.querySelectorAll(`#hunt-filter-strip-${idx} .hunt-sev-chip`).forEach(c => {
+    c.className = 'hunt-sev-chip';
+    if (c.textContent.includes('Clear')) c.style.color = 'var(--text-dim)';
+  });
+  applyHuntFilters(idx);
+}
+
+/* ── Apply filters to log entries ── */
+function applyHuntFilters(idx) {
+  const sc      = HUNT_SCENARIOS[idx];
+  const kw      = (document.getElementById('hunt-kw-' + idx)?.value || '').toLowerCase();
+  const chips   = document.querySelectorAll(`#hunt-filter-strip-${idx} .hunt-sev-chip[data-sev]`);
+  const active  = [];
+  chips.forEach(c => {
+    const sev = c.dataset.sev;
+    const activeClass = { 'log-crit': 'active-crit', 'log-high': 'active-high', 'log-ok': 'active-ok', 'log-info': 'active-info' }[sev];
+    if (c.classList.contains(activeClass)) active.push(sev);
+  });
+
+  const feed = document.getElementById('hunt-log-' + idx);
+  if (!feed) return;
+
+  let visibleCount  = 0;
+  let evidenceCount = 0;
+
+  feed.querySelectorAll('.hunt-log-entry').forEach(entry => {
+    const msg      = (entry.dataset.msg || entry.textContent).toLowerCase();
+    const cls      = [...entry.classList].find(c => c.startsWith('log-'));
+    const kwMatch  = !kw || msg.includes(kw);
+    const sevMatch = active.length === 0 || active.includes(cls);
+    const show     = kwMatch && sevMatch;
+
+    entry.classList.toggle('hidden', !show);
+    if (show) {
+      visibleCount++;
+      const isEvidence = sc.evidenceKeys.some(k => msg.includes(k.toLowerCase()));
+      entry.classList.toggle('hunt-evidence', isEvidence && show);
+      if (isEvidence) evidenceCount++;
+    } else {
+      entry.classList.remove('hunt-evidence');
+    }
+  });
+
+  /* Update evidence note */
+  const note = document.getElementById('hunt-evidence-note-' + idx);
+  if (note) {
+    if (!kw && active.length === 0) {
+      note.textContent = `Showing all ${visibleCount} entries — apply a filter to narrow results`;
+    } else if (evidenceCount > 0) {
+      note.innerHTML = `<span style="color:var(--high);font-weight:600;">⚑ ${evidenceCount} evidence entr${evidenceCount === 1 ? 'y' : 'ies'} highlighted</span> · ${visibleCount} entries visible`;
+    } else {
+      note.textContent = `${visibleCount} entries visible — no evidence matches yet`;
+    }
+  }
+
+  /* Reveal verdict buttons after first filter interaction */
+  if (!huntFiltered && (kw || active.length > 0)) {
+    huntFiltered = true;
+    const verdict = document.getElementById('hunt-verdict-' + idx);
+    if (verdict) verdict.style.display = 'block';
+  }
+}
+
+/* ── Submit verdict ── */
+function submitHuntVerdict(idx, verdict) {
+  if (huntAnswered) return;
+  huntAnswered = true;
+
+  const sc        = HUNT_SCENARIOS[idx];
+  const isCorrect = verdict === sc.correctVerdict;
+
+  /* Disable verdict buttons */
+  document.querySelectorAll(`#hunt-verdict-${idx} .btn`).forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
+
+  /* Feedback */
+  const fb = document.getElementById('hunt-feedback-' + idx);
+  if (fb) {
+    fb.style.display = 'block';
+    const badge = isCorrect
+      ? `<div class="badge badge-ok" style="font-size:12px;padding:6px 12px;margin-bottom:10px;">✓ Correct verdict</div>`
+      : `<div class="badge badge-critical" style="font-size:12px;padding:6px 12px;margin-bottom:10px;">✗ Incorrect — see below</div>`;
+    fb.innerHTML = badge + `
+      <div style="background:var(--bg-primary);border-radius:6px;padding:12px 14px;font-size:12px;color:var(--text-muted);line-height:1.7;border-left:3px solid var(--teal);">
+        <strong style="color:var(--teal);">Analysis:</strong> ${sc.explanation}
+      </div>`;
+  }
+
+  /* Show next button */
+  const nextBtn = document.getElementById('hunt-next-btn-' + idx);
+  if (nextBtn) nextBtn.style.display = 'inline-flex';
+
+  updateHuntProgress(idx + 1);
+}
+
+/* ── Progress bar ── */
+function updateHuntProgress(completedCount) {
+  const fill  = document.getElementById('hunt-progress-fill');
+  const label = document.getElementById('hunt-progress-label');
+  const done  = completedCount !== undefined ? completedCount : huntIdx;
+  if (fill)  fill.style.width  = `${(done / 3) * 100}%`;
+  if (label) label.textContent = `${done} / 3 hunts`;
+}
+
+/* ── Debrief ── */
+function renderHuntDebrief() {
+  const main = document.getElementById('hunt-main');
+  if (!main) return;
+
+  main.innerHTML = `
+    <div class="card mb-4 animate-fade-in">
+      <div class="card-header">
+        <span class="card-icon">🏁</span>
+        <div>
+          <div class="card-title">Threat Hunt — Complete</div>
+          <div class="card-sub">Security+ Domain 4 · Security Operations</div>
+        </div>
+      </div>
+
+      <div style="padding:1.25rem 0;border-bottom:1px solid var(--line);margin-bottom:1.25rem;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">
+          ${HUNT_SCENARIOS.map((s, i) => `
+            <div style="background:var(--bg-2);border-radius:var(--radius-md);padding:1rem;">
+              <div style="font-size:1.5rem;margin-bottom:4px;">${s.icon}</div>
+              <div class="text-xs text-muted" style="font-weight:700;">Hunt ${i + 1}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
+                ${s.correctVerdict === 'confirm'
+                  ? '<span style="color:var(--ok);">✓ Real Threat</span>'
+                  : '<span style="color:var(--medium);">○ False Positive</span>'}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="text-xs text-muted mb-2" style="font-weight:700;text-transform:uppercase;letter-spacing:.08em;">What you practiced (Sec+ Domain 4)</div>
+      <div style="background:var(--bg-primary);border-radius:8px;padding:1rem;margin-bottom:1.25rem;">
+        <div style="display:grid;gap:6px;">
+          ${[
+            'Hypothesis-driven hunting: start with a specific question, not a broad search',
+            'DNS tunneling uses port 53 queries to exfiltrate data past firewall rules',
+            'LSASS memory access is the signature of credential dumping tools like Mimikatz',
+            'Process masquerading (T1036): malware uses names that look like system processes',
+            'Authorized activity can look anomalous — change records and context are essential',
+            'Alert fatigue: false positives that get escalated waste analyst time and erode trust',
+            'Threat hunting is proactive; alerting is reactive — both are needed in a mature SOC',
+          ].map(s => `<div class="text-xs" style="display:flex;gap:8px;"><span style="color:var(--ok);">✓</span><span>${s}</span></div>`).join('')}
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" style="font-size:13px;" onclick="SENTINEL.toggleHuntMode()">‹ Return to Dashboard</button>
+        <button class="btn" style="font-size:13px;" onclick="resetHuntMode()">Retry Hunts</button>
+        <a href="detection.html" class="btn" style="font-size:13px;">Detection & Threat Intel →</a>
+      </div>
+    </div>`;
+
+  updateHuntProgress(3);
+}
+
+/* ── Reset ── */
+function resetHuntMode() {
+  huntIdx      = 0;
+  huntAnswered = false;
+  huntFiltered = false;
+  renderHunt(0);
+}
