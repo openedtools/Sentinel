@@ -3227,3 +3227,117 @@ code, .mono {
 .comp-shake {
   animation: comp-shake 0.4s ease;
 }
+
+/* ── Threat Hunt Mode ── */
+
+.hunt-hypothesis {
+  background: rgba(251, 146, 60, 0.07);
+  border: 1px solid rgba(251, 146, 60, 0.25);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.hunt-filter-strip {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.hunt-filter-input {
+  background: var(--bg-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 10px;
+  flex: 1;
+  min-width: 180px;
+  transition: border-color 140ms;
+}
+
+.hunt-filter-input:focus {
+  outline: none;
+  border-color: var(--teal);
+}
+
+.hunt-sev-chip {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: border-color 120ms, background 120ms, color 120ms;
+}
+
+.hunt-sev-chip:hover {
+  border-color: rgba(255,255,255,0.2);
+}
+
+.hunt-sev-chip.active-crit {
+  border-color: var(--critical);
+  color: var(--critical);
+  background: rgba(244, 63, 94, 0.08);
+}
+
+.hunt-sev-chip.active-high {
+  border-color: var(--high);
+  color: var(--high);
+  background: rgba(251, 146, 60, 0.08);
+}
+
+.hunt-sev-chip.active-ok {
+  border-color: var(--ok);
+  color: var(--ok);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.hunt-sev-chip.active-info {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: rgba(94, 234, 212, 0.08);
+}
+
+.hunt-log-feed {
+  background: var(--bg-primary);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  height: 260px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-bottom: 0.5rem;
+}
+
+.hunt-log-entry {
+  padding: 3px 0;
+  line-height: 1.55;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: background 0.15s;
+}
+
+.hunt-log-entry.hidden {
+  display: none;
+}
+
+.hunt-log-entry.hunt-evidence {
+  background: rgba(251, 146, 60, 0.10);
+  border-radius: 3px;
+  padding: 4px 6px;
+  border-left: 2px solid var(--high);
+  margin: 2px 0;
+}
+
+.hunt-verdict-area {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}

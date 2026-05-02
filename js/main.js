@@ -611,7 +611,8 @@ SENTINEL.renderShell = function() {
   if (tb) {
     let navBtn = '';
     if (pageId === 'dashboard') {
-      navBtn = `<button id="toggle-incidents-btn" class="btn btn-primary" style="font-size:11px;" onclick="SENTINEL.toggleIncidentsView()">Incidents flow ›</button>`;
+      navBtn = `<button id="toggle-incidents-btn" class="btn btn-primary" style="font-size:11px;" onclick="SENTINEL.toggleIncidentsView()">Incidents flow ›</button>
+                <button id="toggle-hunt-btn" class="btn" style="font-size:11px;" onclick="SENTINEL.toggleHuntMode()">🎯 Hunt Mode</button>`;
     } else if (pageId === 'incidents') {
       navBtn = `<a href="index.html" class="btn" style="font-size:11px;">← Command Center</a>`;
     }
@@ -654,17 +655,41 @@ SENTINEL.toggleSidebar = function() {
 
 /* ── Incidents view toggle (dashboard only) ── */
 SENTINEL.toggleIncidentsView = function() {
-  const cmd = document.getElementById('view-command');
-  const inc = document.getElementById('view-incidents');
-  const btn = document.getElementById('toggle-incidents-btn');
+  const cmd  = document.getElementById('view-command');
+  const inc  = document.getElementById('view-incidents');
+  const hunt = document.getElementById('view-hunt');
+  const btn  = document.getElementById('toggle-incidents-btn');
+  const huntBtn = document.getElementById('toggle-hunt-btn');
   if (!cmd || !inc) return;
   const showingInc = inc.style.display !== 'none';
-  cmd.style.display = showingInc ? '' : 'none';
-  inc.style.display = showingInc ? 'none' : '';
+  cmd.style.display  = showingInc ? '' : 'none';
+  inc.style.display  = showingInc ? 'none' : '';
+  if (hunt) hunt.style.display = 'none';
+  if (huntBtn) huntBtn.textContent = '🎯 Hunt Mode';
   if (btn) btn.textContent = showingInc ? 'Incidents flow ›' : '‹ Command Center';
   if (!showingInc && !inc.dataset.built) {
     inc.dataset.built = '1';
     if (typeof buildIncidentsFlow === 'function') buildIncidentsFlow(inc);
+  }
+};
+
+/* ── Hunt Mode toggle (dashboard only) ── */
+SENTINEL.toggleHuntMode = function() {
+  const cmd  = document.getElementById('view-command');
+  const inc  = document.getElementById('view-incidents');
+  const hunt = document.getElementById('view-hunt');
+  const incBtn  = document.getElementById('toggle-incidents-btn');
+  const huntBtn = document.getElementById('toggle-hunt-btn');
+  if (!cmd || !hunt) return;
+  const showingHunt = hunt.style.display !== 'none';
+  cmd.style.display  = showingHunt ? '' : 'none';
+  if (inc) inc.style.display = 'none';
+  hunt.style.display = showingHunt ? 'none' : '';
+  if (incBtn) incBtn.textContent = 'Incidents flow ›';
+  if (huntBtn) huntBtn.textContent = showingHunt ? '🎯 Hunt Mode' : '‹ Command Center';
+  if (!showingHunt && !hunt.dataset.built) {
+    hunt.dataset.built = '1';
+    if (typeof buildHuntMode === 'function') buildHuntMode(hunt);
   }
 };
 
