@@ -36,7 +36,7 @@ function renderScenarioPicker() {
     <div class="page-header">
       <div>
         <div class="page-title">🔍 Incident Investigation</div>
-        <div class="page-subtitle">Choose a scenario to investigate. Each is drawn directly from your Day 3 course content.</div>
+        <div class="page-subtitle">Choose a scenario to investigate. Each is drawn directly from your course content.</div>
       </div>
     </div>
     <div class="grid-2" style="gap:1rem;">

@@ -267,7 +267,7 @@ SENTINEL.showNameModal = function() {
         </div>
 
         <div style="font-size:22px;font-weight:700;letter-spacing:.06em;color:var(--text-primary);margin-bottom:4px;">SENTINEL</div>
-        <div style="font-size:11px;color:var(--teal);letter-spacing:.18em;text-transform:uppercase;margin-bottom:22px;">SOC Simulator · DCOI Day 3</div>
+        <div style="font-size:11px;color:var(--teal);letter-spacing:.18em;text-transform:uppercase;margin-bottom:22px;">SOC Simulator</div>
 
         <!-- Live alert counter -->
         <div style="margin-bottom:20px;padding:10px 16px;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
@@ -557,6 +557,10 @@ SENTINEL.renderShell = function() {
   const current = PAGE_META[pageId];
   const name    = this.getStudentName() || 'Analyst';
   const p       = this.getProgress();
+  const _now    = new Date();
+  const _topbarDate = _now.getDate().toString().padStart(2,'0') + ' ' +
+    ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][_now.getMonth()] + ' ' +
+    _now.getFullYear();
   const score   = (p.totalScore || 0) + ' pts';
   const initials = name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
   const firstName = this._escHtml(name.split(' ')[0]);
@@ -629,7 +633,7 @@ SENTINEL.renderShell = function() {
       <div>
         <div class="crumb">SENTINEL <span style="color:var(--text-muted);margin:0 4px;">/</span> <span style="color:var(--text);font-weight:600;">${current.name}</span></div>
         <div class="greeting">Good ${tod}, <strong style="color:var(--teal);">${firstName}</strong></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">17 APR 2026 · DCOI Thailand · Day 3 — AI-Enabled SIEM/SOC</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${_topbarDate} · AI-Enabled SIEM/SOC</div>
       </div>
       <div style="flex:1;"></div>
       <div style="display:flex;gap:8px;align-items:center;">

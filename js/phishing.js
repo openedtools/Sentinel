@@ -106,7 +106,7 @@ const EMAILS = [
   /* ── Email 2: Reply-To Redirect / BEC ── */
   {
     meta: {
-      from_name:  '"Col. David Kim, Commander DCOI"',
+      from_name:  '"Col. David Kim, Commander RCOC"',
       from_addr:  'd.kim@dcoi-command.org',
       to:         'finance@dcoi.mil',
       date:       'Tue, 29 Apr 2026  06:58:11 +0700',
@@ -128,7 +128,7 @@ const EMAILS = [
       </p>
       <p style="margin-bottom:12px;">I will personally approve all paperwork when I land.</p>
       <p>Col. David Kim<br>
-      <span style="font-size:12px;color:var(--text-muted);">Commander, DCOI Thailand · UNCLASSIFIED</span></p>`,
+      <span style="font-size:12px;color:var(--text-muted);">Commander, Regional Cyber Ops Command · UNCLASSIFIED</span></p>`,
     findings: [
       {
         id: 'replyto',
@@ -341,7 +341,7 @@ const EMAILS = [
   /* ── Email 5: WormGPT / AI-Generated — Why Content Filtering Fails ── */
   {
     meta: {
-      from_name:  '"Warrant Officer Sarah Patel, DCOI Admin"',
+      from_name:  '"Warrant Officer Sarah Patel, RCOC Admin"',
       from_addr:  's.patel@dcoi-admin-portal.org',
       to:         'analyst@dcoi.mil',
       date:       'Fri, 02 May 2026  03:41:17 +0700',
@@ -371,12 +371,12 @@ const EMAILS = [
         </a>
       </div>
       <p style="margin-bottom:12px;font-size:13px;color:var(--text-muted);">
-        If you have questions, please contact the DCOI Help Desk at ext. 4471. Do not reply to this email
+        If you have questions, please contact the RCOC Help Desk at ext. 4471. Do not reply to this email
         as this mailbox is unmonitored.
       </p>
       <p style="font-size:13px;">
         WO1 Sarah Patel<br>
-        <span style="color:var(--text-muted);">Systems Administrator, DCOI Thailand<br>
+        <span style="color:var(--text-muted);">Systems Administrator, Regional Cyber Ops Command<br>
         DSN: 314-555-4471 · s.patel@dcoi.mil</span>
       </p>`,
     findings: [
@@ -393,7 +393,7 @@ const EMAILS = [
         label: 'Send Time',
         icon: '🕒',
         title: 'Sent at 03:41 Local Time — Behavioral Anomaly',
-        body: 'The email was sent at 03:41 Thailand time. A legitimate administrative email about an 0800 briefing would be sent during normal duty hours — not in the middle of the night. AI-enabled security tools flag emails sent outside a sender\'s normal behavioral baseline. UEBA (User and Entity Behavior Analytics) would score this as anomalous even if content analysis found nothing.',
+        body: 'The email was sent at 03:41 local time. A legitimate administrative email about an 0800 briefing would be sent during normal duty hours — not in the middle of the night. AI-enabled security tools flag emails sent outside a sender\'s normal behavioral baseline. UEBA (User and Entity Behavior Analytics) would score this as anomalous even if content analysis found nothing.',
         severity: 'medium'
       },
       {

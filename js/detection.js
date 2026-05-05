@@ -1,14 +1,14 @@
 /* SENTINEL — Detection & Threat Intel Module */
 
 const IOCS = [
-  { id:1, type:'IPv4',     value:'185.220.101.47',                      actor:'APT-NOCTURNE',   source:'GreyNoise',      firstSeen:'17 APR 03:14', status:'active',       tags:['C2','Tor-exit'],       confidence:95 },
-  { id:2, type:'SHA-256',  value:'4a9f7c3d18b2e05a...c8d1',             actor:'APT-NOCTURNE',   source:'VirusTotal',     firstSeen:'17 APR 02:58', status:'active',       tags:['ransomware','polymorphic'], confidence:99 },
-  { id:3, type:'Domain',   value:'*.exfilbase64[.]co',                  actor:'APT-NOCTURNE',   source:'Threat Feed',    firstSeen:'17 APR 04:22', status:'active',       tags:['DNS-tunnel','exfil'],   confidence:97 },
-  { id:4, type:'Filename', value:'wdcu.exe (SHA-256: 3b7e...f9a2)',      actor:'LAZARUS-CLONE',  source:'CISA Advisory',  firstSeen:'17 APR 05:01', status:'active',       tags:['cred-dump','LSASS'],    confidence:98 },
-  { id:5, type:'SHA-256',  value:'9f4b2a1c77e36d08...bb3c',             actor:'SUPPLY-CHAIN-X', source:'Internal',       firstSeen:'17 APR 00:35', status:'active',       tags:['tampered','supply-chain'], confidence:91 },
-  { id:6, type:'Email',    value:'ai_generated ≥0.97 + display-name spoof', actor:'LAZARUS-CLONE', source:'Proofpoint', firstSeen:'17 APR 06:18', status:'active',       tags:['spear-phish','BEC'],    confidence:94 },
-  { id:7, type:'IPv4',     value:'10.14.1.143 (WS-011)',                actor:'Internal',       source:'SIEM',           firstSeen:'17 APR 04:47', status:'investigating', tags:['lateral-movement'],    confidence:88 },
-  { id:8, type:'CVE',      value:'CVE-2024-21413 (Outlook RCE, CVSS 9.8)', actor:'LAZARUS-CLONE', source:'NVD',         firstSeen:'16 APR 00:00', status:'patching',     tags:['initial-access','RCE'], confidence:100 },
+  { id:1, type:'IPv4',     value:'185.220.101.47',                      actor:'APT-NOCTURNE',   source:'GreyNoise',      firstSeen:'TODAY03:14', status:'active',       tags:['C2','Tor-exit'],       confidence:95 },
+  { id:2, type:'SHA-256',  value:'4a9f7c3d18b2e05a...c8d1',             actor:'APT-NOCTURNE',   source:'VirusTotal',     firstSeen:'TODAY02:58', status:'active',       tags:['ransomware','polymorphic'], confidence:99 },
+  { id:3, type:'Domain',   value:'*.exfilbase64[.]co',                  actor:'APT-NOCTURNE',   source:'Threat Feed',    firstSeen:'TODAY04:22', status:'active',       tags:['DNS-tunnel','exfil'],   confidence:97 },
+  { id:4, type:'Filename', value:'wdcu.exe (SHA-256: 3b7e...f9a2)',      actor:'LAZARUS-CLONE',  source:'CISA Advisory',  firstSeen:'TODAY05:01', status:'active',       tags:['cred-dump','LSASS'],    confidence:98 },
+  { id:5, type:'SHA-256',  value:'9f4b2a1c77e36d08...bb3c',             actor:'SUPPLY-CHAIN-X', source:'Internal',       firstSeen:'TODAY00:35', status:'active',       tags:['tampered','supply-chain'], confidence:91 },
+  { id:6, type:'Email',    value:'ai_generated ≥0.97 + display-name spoof', actor:'LAZARUS-CLONE', source:'Proofpoint', firstSeen:'TODAY06:18', status:'active',       tags:['spear-phish','BEC'],    confidence:94 },
+  { id:7, type:'IPv4',     value:'10.14.1.143 (WS-011)',                actor:'Internal',       source:'SIEM',           firstSeen:'TODAY04:47', status:'investigating', tags:['lateral-movement'],    confidence:88 },
+  { id:8, type:'CVE',      value:'CVE-2024-21413 (Outlook RCE, CVSS 9.8)', actor:'LAZARUS-CLONE', source:'NVD',         firstSeen:'YESTERDAY', status:'patching',     tags:['initial-access','RCE'], confidence:100 },
 ];
 
 const ACTORS = [

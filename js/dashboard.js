@@ -19,6 +19,15 @@ async function initDashboard() {
     if (bar) bar.style.width = '75%';
   }, 400);
 
+  /* Populate live date in cmd-bar */
+  const _d = new Date();
+  const _cmdDate = document.getElementById('cmd-bar-date');
+  if (_cmdDate) {
+    _cmdDate.textContent = _d.getDate().toString().padStart(2,'0') + ' ' +
+      ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][_d.getMonth()] + ' ' +
+      _d.getFullYear() + ' · Last 24H';
+  }
+
   buildMitreChart(mitreData);
   buildAIFlowViz();
   LIVE_LOG.init(document.getElementById('log-feed'));

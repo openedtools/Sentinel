@@ -6,7 +6,7 @@ const LOG_CHALLENGES = [
     id: 1,
     title: 'Windows Authentication & Lateral Movement',
     logType: 'Windows Security Event Log',
-    context: 'Domain controller · CORP internal network · 17 APR 2026 · 06:00–06:10 UTC+7',
+    context: 'Domain controller · CORP internal network',
     hint: 'Focus on logon types, repeated failures, unusual parent processes, and new scheduled tasks.',
     lines: [
       { id: 'l1-1',  suspicious: false, text: '06:01:22  EventID=4624  LogonType=2  Account=sarah.chen  Domain=CORP  Workstation=WS-031  SrcIP=10.14.1.31',
@@ -46,7 +46,7 @@ const LOG_CHALLENGES = [
     id: 2,
     title: 'Linux Server: SSH Brute Force & Privilege Escalation',
     logType: 'Linux Syslog (/var/log/auth.log)',
-    context: 'Production web server WEB-01 · Ubuntu 22.04 · 17 APR 2026 · 03:10–03:22 UTC+7',
+    context: 'Production web server WEB-01 · Ubuntu 22.04',
     hint: 'Watch for repeated authentication failures, unexpected sudo usage, and new account creation.',
     lines: [
       { id: 'l2-1',  suspicious: false, text: 'Mar 17 03:10:01 WEB-01 CRON[1842]: pam_unix(cron:session): session opened for user root by (uid=0)',
@@ -86,7 +86,7 @@ const LOG_CHALLENGES = [
     id: 3,
     title: 'Firewall Logs: C2 Beacon Detection',
     logType: 'Next-Gen Firewall Session Log (Palo Alto format)',
-    context: 'Perimeter NGFW · Outbound sessions from WS-004 · 17 APR 2026 · 07:00–07:18 UTC+7',
+    context: 'Perimeter NGFW · Outbound sessions from WS-004',
     hint: 'Look for regular intervals, consistent packet sizes to unknown external hosts, and anomalous DNS queries.',
     lines: [
       { id: 'l3-1',  suspicious: false, text: '07:00:14  ALLOW  tcp  WS-004(10.14.1.4):52001 → 52.96.184.22:443  app=ssl  bytes=12840  duration=8s',
@@ -126,7 +126,7 @@ const LOG_CHALLENGES = [
     id: 4,
     title: 'DNS Logs: Data Exfiltration via Tunneling',
     logType: 'Internal DNS Resolver Query Log',
-    context: 'DNS resolver DNS-01 · FILE-SERVER-01 as client · 17 APR 2026 · 08:00–08:12 UTC+7',
+    context: 'DNS resolver DNS-01 · FILE-SERVER-01 as client',
     hint: 'Legitimate DNS looks up short, known domain names. Watch for long random-looking subdomains and unusual query types.',
     lines: [
       { id: 'l4-1',  suspicious: false, text: '08:00:01  FILE-SERVER-01(10.14.1.10)  A    microsoft.com              → 20.81.111.85        TTL=3600',
@@ -166,7 +166,7 @@ const LOG_CHALLENGES = [
     id: 5,
     title: 'Web Server Logs: Injection Attack Chain',
     logType: 'Apache HTTP Access Log (Customer Portal)',
-    context: 'Apache 2.4 · customer-portal.corp.com · 17 APR 2026 · 09:00–09:08 UTC+7',
+    context: 'Apache 2.4 · customer-portal.corp.com',
     hint: 'Look for SQL syntax in URL parameters, directory traversal sequences (../), and command execution attempts.',
     lines: [
       { id: 'l5-1',  suspicious: false, text: '09:00:04 192.168.50.31 "GET / HTTP/1.1" 200 4821 "Mozilla/5.0 (Windows NT 10.0; Win64)"',
