@@ -25,7 +25,7 @@ async function initDashboard() {
   buildSparklines();
   buildLowerGrid();
   startLiveAlertCounter();
-  initTweaksPanel();
+  if (typeof SENTINEL_TWEAKS !== 'undefined') SENTINEL_TWEAKS.getState();
 
   /* Animate vol bars */
   setTimeout(() => {

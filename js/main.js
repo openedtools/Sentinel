@@ -267,7 +267,7 @@ SENTINEL.showNameModal = function() {
         </div>
 
         <div style="font-size:22px;font-weight:700;letter-spacing:.06em;color:var(--text-primary);margin-bottom:4px;">SENTINEL</div>
-        <div style="font-size:11px;color:var(--teal);letter-spacing:.18em;text-transform:uppercase;margin-bottom:22px;">SOC Simulator · DCOI Day 3</div>
+        <div style="font-size:11px;color:var(--teal);letter-spacing:.18em;text-transform:uppercase;margin-bottom:22px;">SOC Simulator · International Edition</div>
 
         <!-- Live alert counter -->
         <div style="margin-bottom:20px;padding:10px 16px;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
@@ -629,7 +629,7 @@ SENTINEL.renderShell = function() {
       <div>
         <div class="crumb">SENTINEL <span style="color:var(--text-muted);margin:0 4px;">/</span> <span style="color:var(--text);font-weight:600;">${current.name}</span></div>
         <div class="greeting">Good ${tod}, <strong style="color:var(--teal);">${firstName}</strong></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">17 APR 2026 · DCOI Thailand · Day 3 — AI-Enabled SIEM/SOC</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">International Student Edition · AI-Enabled SIEM/SOC</div>
       </div>
       <div style="flex:1;"></div>
       <div style="display:flex;gap:8px;align-items:center;">
@@ -712,3 +712,4 @@ document.addEventListener('DOMContentLoaded', () => {
   SENTINEL.markActiveNav();
   SENTINEL.updateNavScore();
 });
+
