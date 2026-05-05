@@ -2,7 +2,7 @@
 
 **Simulated Environment for Network Training, Intelligence, and Logging**
 
-A browser-based SOC simulator for the DCOI Thailand Day 3 course — *Introduction to AI-Enabled SIEMs and SOCs*. Modeled after Cortex XSIAM. No install, no login, runs entirely in-browser.
+A browser-based SOC simulator for international cybersecurity students learning AI-enabled SIEM and SOC workflows. Modeled after Cortex XSIAM. No install, no login, runs entirely in-browser.
 
 ---
 
@@ -59,4 +59,5 @@ npx serve .
 
 ---
 
-*SENTINEL · DCOI Thailand · Day 3 — AI-Enabled SIEM/SOC · All data simulated for training purposes*
+*SENTINEL · International Student Edition · AI-Enabled SIEM/SOC · All data simulated for training purposes*
+

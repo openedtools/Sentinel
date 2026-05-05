@@ -113,7 +113,7 @@ Single delegated hover listener; tooltip positioned above the hovered term.
 - The analogy cards already exist in each module (e.g., "combination padlock" for AES)
 - Add a language toggle (🌐) that swaps the analogy card text into Thai, Spanish, or French
 - Store translations as a static JSON object — no backend needed
-- Target languages chosen for DCOI audience (Thailand primary; others secondary)
+- Target languages chosen for international student audience
 - **Benefit:** when a concept is genuinely hard, reading it in your first language first unlocks it
 
 ---
@@ -152,7 +152,7 @@ File: `instructor.html`
 - Would be transformative for self-paced learners outside of class
 
 ### Network Topology Visualizer
-- Interactive node map of the simulated DCOI network (DC-01, FILE-SERVER-01, WS-004, etc.)
+- Interactive node map of the simulated training network (DC-01, FILE-SERVER-01, WS-004, etc.)
 - Clicking a node shows its incidents, endpoints data, and recent logs
 - Ties together the scattered references to hostnames across all modules
 - Teaching value: students see the *network* not just isolated events

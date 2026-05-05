@@ -1,17 +1,17 @@
 /* SENTINEL — Detection & Threat Intel Module */
 
 const IOCS = [
-  { id:1, type:'IPv4',     value:'185.220.101.47',                      actor:'APT-NOCTURNE',   source:'GreyNoise',      firstSeen:'TODAY03:14', status:'active',       tags:['C2','Tor-exit'],       confidence:95 },
-  { id:2, type:'SHA-256',  value:'4a9f7c3d18b2e05a...c8d1',             actor:'APT-NOCTURNE',   source:'VirusTotal',     firstSeen:'TODAY02:58', status:'active',       tags:['ransomware','polymorphic'], confidence:99 },
-  { id:3, type:'Domain',   value:'*.exfilbase64[.]co',                  actor:'APT-NOCTURNE',   source:'Threat Feed',    firstSeen:'TODAY04:22', status:'active',       tags:['DNS-tunnel','exfil'],   confidence:97 },
-  { id:4, type:'Filename', value:'wdcu.exe (SHA-256: 3b7e...f9a2)',      actor:'LAZARUS-CLONE',  source:'CISA Advisory',  firstSeen:'TODAY05:01', status:'active',       tags:['cred-dump','LSASS'],    confidence:98 },
-  { id:5, type:'SHA-256',  value:'9f4b2a1c77e36d08...bb3c',             actor:'SUPPLY-CHAIN-X', source:'Internal',       firstSeen:'TODAY00:35', status:'active',       tags:['tampered','supply-chain'], confidence:91 },
-  { id:6, type:'Email',    value:'ai_generated ≥0.97 + display-name spoof', actor:'LAZARUS-CLONE', source:'Proofpoint', firstSeen:'TODAY06:18', status:'active',       tags:['spear-phish','BEC'],    confidence:94 },
-  { id:7, type:'IPv4',     value:'10.14.1.143 (WS-011)',                actor:'Internal',       source:'SIEM',           firstSeen:'TODAY04:47', status:'investigating', tags:['lateral-movement'],    confidence:88 },
+  { id:1, type:'IPv4',     value:'185.220.101.47',                      actor:'APT-NOCTURNE',   source:'GreyNoise',      firstSeen:'TODAY 03:14', status:'active',       tags:['C2','Tor-exit'],       confidence:95 },
+  { id:2, type:'SHA-256',  value:'4a9f7c3d18b2e05a...c8d1',             actor:'APT-NOCTURNE',   source:'VirusTotal',     firstSeen:'TODAY 02:58', status:'active',       tags:['ransomware','polymorphic'], confidence:99 },
+  { id:3, type:'Domain',   value:'*.exfilbase64[.]co',                  actor:'APT-NOCTURNE',   source:'Threat Feed',    firstSeen:'TODAY 04:22', status:'active',       tags:['DNS-tunnel','exfil'],   confidence:97 },
+  { id:4, type:'Filename', value:'wdcu.exe (SHA-256: 3b7e...f9a2)',      actor:'LAZARUS-CLONE',  source:'CISA Advisory',  firstSeen:'TODAY 05:01', status:'active',       tags:['cred-dump','LSASS'],    confidence:98 },
+  { id:5, type:'SHA-256',  value:'9f4b2a1c77e36d08...bb3c',             actor:'SUPPLY-CHAIN-X', source:'Internal',       firstSeen:'TODAY 00:35', status:'active',       tags:['tampered','supply-chain'], confidence:91 },
+  { id:6, type:'Email',    value:'ai_generated ≥0.97 + display-name spoof', actor:'LAZARUS-CLONE', source:'Proofpoint', firstSeen:'TODAY 06:18', status:'active',       tags:['spear-phish','BEC'],    confidence:94 },
+  { id:7, type:'IPv4',     value:'10.14.1.143 (WS-011)',                actor:'Internal',       source:'SIEM',           firstSeen:'TODAY 04:47', status:'investigating', tags:['lateral-movement'],    confidence:88 },
   { id:8, type:'CVE',      value:'CVE-2024-21413 (Outlook RCE, CVSS 9.8)', actor:'LAZARUS-CLONE', source:'NVD',         firstSeen:'YESTERDAY', status:'patching',     tags:['initial-access','RCE'], confidence:100 },
 ];
 
-const ACTORS = [
+const THREAT_ACTORS = [
   {
     id: 'APT-NOCTURNE',
     flag: '🌙',
@@ -44,7 +44,7 @@ const ACTORS = [
   },
 ];
 
-const RULES = [
+const DETECTION_RULES = [
   { id:'RULE-001', name:'Polymorphic Binary Detection', type:'Behavioral', status:'active',  matches:3,
     logic:'hash_change_rate > 2/hr AND process_injection = true → CRITICAL',
     secplus:'T1027 — Obfuscated Files or Information' },
@@ -112,8 +112,8 @@ function renderStats() {
   if (!container) return;
   const stats = [
     { label:'IOCs Tracked',    value: IOCS.length,                            color:'var(--teal)',     icon:'◎' },
-    { label:'Active Actors',   value: ACTORS.length,                          color:'var(--critical)', icon:'⚑' },
-    { label:'Rules Firing',    value: RULES.filter(r=>r.status==='active').length, color:'var(--ok)', icon:'⚡' },
+    { label:'Active Actors',   value: THREAT_ACTORS.length,                          color:'var(--critical)', icon:'⚑' },
+    { label:'Rules Firing',    value: DETECTION_RULES.filter(r=>r.status==='active').length, color:'var(--ok)', icon:'⚡' },
     { label:'Avg Confidence',  value: Math.round(IOCS.reduce((s,i)=>s+i.confidence,0)/IOCS.length)+'%', color:'var(--medium)', icon:'▲' },
   ];
   container.innerHTML = stats.map(s => `
@@ -178,7 +178,7 @@ function renderActors() {
   const container = document.getElementById('actor-profiles');
   if (!container) return;
   const tlpBg = { RED:'rgba(244,63,94,0.12)', AMBER:'rgba(251,146,60,0.12)', GREEN:'rgba(74,222,128,0.12)' };
-  container.innerHTML = ACTORS.map((a, i) => `
+  container.innerHTML = THREAT_ACTORS.map((a, i) => `
     <div style="padding:12px;background:var(--bg-2);border-radius:8px;margin-bottom:8px;border:1px solid var(--line-soft);">
       <div class="flex items-center justify-between mb-2">
         <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);">${a.flag} ${a.id}</div>
@@ -196,7 +196,7 @@ function renderRules() {
   const container = document.getElementById('rules-list');
   if (!container) return;
   const typeColor = { Behavioral:'var(--teal)', Signature:'var(--low)', 'ML Model':'var(--medium)' };
-  container.innerHTML = RULES.map(r => `
+  container.innerHTML = DETECTION_RULES.map(r => `
     <div style="padding:10px 12px;border:1px solid var(--line-soft);border-radius:8px;margin-bottom:8px;background:var(--bg-2);">
       <div class="flex items-center justify-between mb-1">
         <div style="font-size:0.8125rem;font-weight:600;color:var(--text-primary);">${r.name}</div>

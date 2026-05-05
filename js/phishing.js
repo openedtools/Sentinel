@@ -26,7 +26,7 @@ const EMAILS = [
     meta: {
       from_name:  '"PayPal Security Team"',
       from_addr:  'security@paypal-accounts-verify.com',
-      to:         'analyst@dcoi.mil',
+      to:         'analyst@sentinel-training.example',
       date:       'Mon, 28 Apr 2026  09:14:32 -0500',
       subject:    'Urgent: Your PayPal Account Has Been Compromised',
       reply_to:   null,
@@ -53,7 +53,7 @@ const EMAILS = [
         </div>
       </div>
       <p style="font-size:12px;color:var(--text-muted);">
-        This email was sent to analyst@dcoi.mil because it is linked to a PayPal account.
+        This email was sent to analyst@sentinel-training.example because it is linked to a PayPal account.
         © 2026 PayPal, Inc. All rights reserved.
       </p>`,
     findings: [
@@ -107,13 +107,13 @@ const EMAILS = [
   {
     meta: {
       from_name:  '"Col. David Kim, Commander RCOC"',
-      from_addr:  'd.kim@dcoi-command.org',
-      to:         'finance@dcoi.mil',
+      from_addr:  'd.kim@intl-command-portal.org',
+      to:         'finance@sentinel-training.example',
       date:       'Tue, 29 Apr 2026  06:58:11 +0700',
       subject:    'Urgent — Confidential Wire Transfer Required Today',
       reply_to:   'david.kim.urgent@protonmail.com',
-      spf:        { result: 'pass',  detail: 'dcoi-command.org' },
-      dkim:       { result: 'pass',  detail: 'd=dcoi-command.org' },
+      spf:        { result: 'pass',  detail: 'intl-command-portal.org' },
+      dkim:       { result: 'pass',  detail: 'd=intl-command-portal.org' },
       dmarc:      { result: 'pass',  detail: 'p=quarantine; aligned' },
     },
     body: `
@@ -135,7 +135,7 @@ const EMAILS = [
         label: 'Reply-To Field',
         icon: '↩',
         title: 'Reply-To Hijack — Replies Go to the Attacker',
-        body: 'The <em>From</em> address is <code>d.kim@dcoi-command.org</code>, which looks plausible. But the <em>Reply-To</em> is <code>david.kim.urgent@protonmail.com</code> — a free email account controlled by the attacker. When a victim clicks Reply, their response goes to ProtonMail, not the real colonel. All subsequent correspondence with "Col. Kim" goes directly to the attacker. SPF/DKIM/DMARC all pass — because the attacker registered dcoi-command.org themselves.',
+        body: 'The <em>From</em> address is <code>d.kim@intl-command-portal.org</code>, which looks plausible. But the <em>Reply-To</em> is <code>david.kim.urgent@protonmail.com</code> — a free email account controlled by the attacker. When a victim clicks Reply, their response goes to ProtonMail, not the real colonel. All subsequent correspondence with "Col. Kim" goes directly to the attacker. SPF/DKIM/DMARC all pass — because the attacker registered intl-command-portal.org themselves.',
         severity: 'critical'
       },
       {
@@ -166,7 +166,7 @@ const EMAILS = [
     quiz: {
       q: 'A finance officer clicks <em>Reply</em> to this email. Where does their response go?',
       opts: [
-        { val: 'A', text: 'd.kim@dcoi-command.org — the displayed From address' },
+        { val: 'A', text: 'd.kim@intl-command-portal.org — the displayed From address' },
         { val: 'B', text: 'david.kim.urgent@protonmail.com — the attacker-controlled Reply-To address' },
         { val: 'C', text: 'Both addresses receive a copy simultaneously' },
         { val: 'D', text: 'The reply bounces — mismatched Reply-To triggers a mail error' },
@@ -181,7 +181,7 @@ const EMAILS = [
     meta: {
       from_name:  '"Microsoft Account Team"',
       from_addr:  'security@microsofft.com',
-      to:         'analyst@dcoi.mil',
+      to:         'analyst@sentinel-training.example',
       date:       'Wed, 30 Apr 2026  02:17:44 +0000',
       subject:    'Action Required: Unusual sign-in to your Microsoft account',
       reply_to:   null,
@@ -260,7 +260,7 @@ const EMAILS = [
     meta: {
       from_name:  '"Microsoft 365 Security"',
       from_addr:  'no-reply@support.microsoft.com.account-verify.net',
-      to:         'analyst@dcoi.mil',
+      to:         'analyst@sentinel-training.example',
       date:       'Thu, 01 May 2026  11:22:08 -0500',
       subject:    'Your Microsoft 365 License Will Expire — Action Required',
       reply_to:   null,
@@ -279,13 +279,13 @@ const EMAILS = [
       </p>
       <div style="text-align:center;margin-bottom:16px;">
         <a href="#" class="phish-link"
-           data-real="https://login.account-verify.net/m365/auth?ref=dcoi"
+           data-real="https://login.account-verify.net/m365/auth?ref=student-cohort"
            onclick="return false;"
            style="display:inline-block;background:#0078d4;color:#fff;padding:10px 24px;border-radius:4px;font-weight:600;text-decoration:none;">
           Sign in to Microsoft 365 →
         </a>
         <div class="phish-link-reveal" style="display:none;margin-top:6px;font-size:11px;font-family:var(--font-mono);color:var(--critical);">
-          Real URL: https://login.account-verify.net/m365/auth?ref=dcoi
+          Real URL: https://login.account-verify.net/m365/auth?ref=student-cohort
         </div>
       </div>
       <p style="font-size:11px;color:var(--text-muted);text-align:center;">
@@ -313,7 +313,7 @@ const EMAILS = [
         label: 'Sign-In Link Destination',
         icon: '🔗',
         title: 'Link Goes to account-verify.net — Not Microsoft',
-        body: 'The button says "Sign in to Microsoft 365" but the actual URL is <code>https://login.account-verify.net/m365/auth?ref=dcoi</code>. If you enter your Microsoft credentials here, the attacker captures them and uses them to log into the real Microsoft 365. This is <em>credential harvesting</em>. The <code>?ref=dcoi</code> parameter tells the attacker which phishing campaign delivered this victim.',
+        body: 'The button says "Sign in to Microsoft 365" but the actual URL is <code>https://login.account-verify.net/m365/auth?ref=student-cohort</code>. If you enter your Microsoft credentials here, the attacker captures them and uses them to log into the real Microsoft 365. This is <em>credential harvesting</em>. The <code>?ref=student-cohort</code> parameter tells the attacker which phishing campaign delivered this victim.',
         severity: 'critical'
       },
       {
@@ -342,18 +342,18 @@ const EMAILS = [
   {
     meta: {
       from_name:  '"Warrant Officer Sarah Patel, RCOC Admin"',
-      from_addr:  's.patel@dcoi-admin-portal.org',
-      to:         'analyst@dcoi.mil',
+      from_addr:  's.patel@training-admin-portal.org',
+      to:         'analyst@sentinel-training.example',
       date:       'Fri, 02 May 2026  03:41:17 +0700',
       subject:    'Mandatory: Update Your SENTINEL Portal Credentials Before 0800',
       reply_to:   null,
-      spf:        { result: 'pass',  detail: 'dcoi-admin-portal.org' },
-      dkim:       { result: 'pass',  detail: 'd=dcoi-admin-portal.org' },
+      spf:        { result: 'pass',  detail: 'training-admin-portal.org' },
+      dkim:       { result: 'pass',  detail: 'd=training-admin-portal.org' },
       dmarc:      { result: 'pass',  detail: 'p=reject; aligned' },
       extra: [
         { label: 'X-AI-Phish-Score', value: '0.97 (WormGPT detected — DLP flagged)', color: 'var(--critical)' },
         { label: 'X-Originating-IP', value: '185.220.101.48 (Tor exit node — threat feed match)', color: 'var(--critical)' },
-        { label: 'Domain Age',        value: 'dcoi-admin-portal.org registered: 2026-04-30 (2 days ago)', color: 'var(--high)' },
+        { label: 'Domain Age',        value: 'training-admin-portal.org registered: 2026-04-30 (2 days ago)', color: 'var(--high)' },
       ]
     },
     body: `
@@ -377,7 +377,7 @@ const EMAILS = [
       <p style="font-size:13px;">
         WO1 Sarah Patel<br>
         <span style="color:var(--text-muted);">Systems Administrator, Regional Cyber Ops Command<br>
-        DSN: 314-555-4471 · s.patel@dcoi.mil</span>
+        DSN: 314-555-4471 · s.patel@sentinel-training.example</span>
       </p>`,
     findings: [
       {
@@ -409,7 +409,7 @@ const EMAILS = [
         label: 'Domain Age + AI Score',
         icon: '🤖',
         title: 'Domain 2 Days Old + AI-Generated Score 0.97',
-        body: '<code>dcoi-admin-portal.org</code> was registered <strong>2 days ago</strong>. The DLP system logged <code>X-AI-Phish-Score: 0.97</code> — the AI classifier is 97% confident this email was generated by an AI phishing tool (consistent with WormGPT). Neither of these signals depends on reading the content. This is why modern SOCs layer behavioral, infrastructure, and AI-detection signals rather than relying on any single control.',
+        body: '<code>training-admin-portal.org</code> was registered <strong>2 days ago</strong>. The DLP system logged <code>X-AI-Phish-Score: 0.97</code> — the AI classifier is 97% confident this email was generated by an AI phishing tool (consistent with WormGPT). Neither of these signals depends on reading the content. This is why modern SOCs layer behavioral, infrastructure, and AI-detection signals rather than relying on any single control.',
         severity: 'critical'
       }
     ],

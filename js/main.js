@@ -716,3 +716,4 @@ document.addEventListener('DOMContentLoaded', () => {
   SENTINEL.markActiveNav();
   SENTINEL.updateNavScore();
 });
+
