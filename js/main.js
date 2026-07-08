@@ -34,6 +34,9 @@ const SENTINEL = {
         phishingCompleted: false,
         complianceScore: 0,
         complianceCompleted: false,
+        livefireScore: 0,
+        livefireCompleted: false,
+        livefireBest: 0,
         totalScore: 0
       };
     } catch { return {}; }
@@ -423,16 +426,28 @@ SENTINEL.showIntroModal = function(studentName) {
           </div>
         </div>
 
+        <div style="background:linear-gradient(120deg,rgba(244,63,94,0.08),transparent);border:1px solid rgba(244,63,94,0.28);border-radius:var(--radius-md);padding:12px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:14px;">
+          <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:var(--teal-glow);border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--teal);">◎</div>
+          <div style="flex:1;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;color:var(--critical);">CAPSTONE · LIVE FIRE EXERCISE</div>
+            <div style="font-size:0.875rem;font-weight:600;color:var(--text-primary);margin-top:2px;">Operation JadePuffer — defend a live, timed AI attack</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;line-height:1.5;">Once you've built the foundations, face a five-stage promptware attack on the clock and earn your certification.</div>
+          </div>
+        </div>
+
         <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:1.25rem;font-size:0.8125rem;color:var(--medium);">
-          ⏱ Full completion: ~4.5 hours across all 8 modules. Your progress saves automatically to this browser.
+          ⏱ Work the Skill-Builder modules at your own pace, then take the Live Fire capstone. Progress saves automatically to this browser.
         </div>
 
         <div class="flex gap-3">
           <a href="triage.html" class="btn btn-primary btn-lg" style="flex:1;justify-content:center;" onclick="closeIntroModal()">
             ⚡ Start with Alert Triage
           </a>
-          <button onclick="closeIntroModal()" class="btn btn-secondary btn-lg">
-            Explore Dashboard
+          <a href="livefire.html" class="btn btn-secondary btn-lg" style="justify-content:center;" onclick="closeIntroModal()">
+            ◎ Jump to Live Fire
+          </a>
+          <button onclick="closeIntroModal()" class="btn btn-ghost btn-lg">
+            Explore
           </button>
         </div>
       </div>`;
@@ -475,8 +490,9 @@ SENTINEL.generateScoreCode = function() {
   const crypto    = p.cryptoCompleted    ? `CR${p.cryptoScore    || 0}` : 'CR--';
   const phishing   = p.phishingCompleted   ? `PH${p.phishingScore   || 0}` : 'PH--';
   const compliance = p.complianceCompleted ? `CO${p.complianceScore || 0}` : 'CO--';
+  const livefire   = p.livefireCompleted   ? `LF${p.livefireBest || 0}%` : 'LF--';
   const pts        = (p.totalScore || 0);
-  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${risk}·${detection}·${assets}·${endpoints}·${identity}·${crypto}·${phishing}·${compliance}·${pts}PTS`;
+  return `SENTINEL·${name}·${dateStr}·${triage}·${scns}·${logs}·${vulns}·${risk}·${detection}·${assets}·${endpoints}·${identity}·${crypto}·${phishing}·${compliance}·${livefire}·${pts}PTS`;
 };
 
 SENTINEL.copyScoreCode = function() {
@@ -526,6 +542,7 @@ SENTINEL._getPageId = function() {
            'endpoints.html': 'endpoints', 'identity.html': 'identity',
            'crypto.html': 'crypto',
            'phishing.html': 'phishing',
+           'livefire.html': 'livefire',
            'compliance.html': 'compliance' }[page] || 'dashboard';
 };
 
@@ -538,6 +555,7 @@ SENTINEL.renderShell = function() {
   const PAGE_META = {
     dashboard:   { name: 'Command Center',       href: 'index.html',             icon: '⊞' },
     incidents:   { name: 'Incident Response',    href: 'incident-response.html', icon: '⚑' },
+    livefire:    { name: 'Live Fire Exercise',   href: 'livefire.html',          icon: '◎' },
     triage:      { name: 'Alert Triage',         href: 'triage.html',            icon: '⚡' },
     investigate: { name: 'Investigation',        href: 'investigate.html',       icon: '🔍' },
     remediate:   { name: 'Remediation Lab',      href: 'remediate.html',         icon: '🛠' },
@@ -588,6 +606,8 @@ SENTINEL.renderShell = function() {
         ${navItem(['endpoints', PAGE_META.endpoints])}
         ${navItem(['identity',  PAGE_META.identity])}
         <div class="nav-section-label" style="margin-top:0.5rem;">TRAINING</div>
+        <a href="livefire.html" class="nav-item nav-item-flagship${pageId === 'livefire' ? ' active' : ''}" data-page="livefire">
+          <span class="nav-icon">◎</span>Live Fire Exercise<span class="nav-flag-tag">LIVE</span></a>
         ${navItem(['triage',      PAGE_META.triage])}
         ${navItem(['investigate', PAGE_META.investigate])}
         ${navItem(['remediate',   PAGE_META.remediate])}

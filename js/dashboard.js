@@ -28,6 +28,7 @@ async function initDashboard() {
       _d.getFullYear() + ' · Last 24H';
   }
 
+  buildMissionPath();
   buildMitreChart(mitreData);
   buildAIFlowViz();
   LIVE_LOG.init(document.getElementById('log-feed'));
@@ -43,6 +44,71 @@ async function initDashboard() {
       bar.style.width = bar.dataset.width;
     });
   }, 500);
+}
+
+/* ══════════════════════════════════════════
+   MISSION PATH — progress-aware next step
+   Guides students through a recommended order
+   and points them to the capstone once ready.
+   ══════════════════════════════════════════ */
+function buildMissionPath() {
+  const mount = document.getElementById('mission-path-mount');
+  if (!mount) return;
+  const p = SENTINEL.getProgress();
+
+  /* Ordered curriculum: foundations first, capstone last. */
+  const steps = [
+    { key: 'triage',      label: 'Alert Triage',            href: 'triage.html',      done: !!p.triageCompleted },
+    { key: 'investigate', label: 'Incident Investigation',  href: 'investigate.html', done: (p.scenariosCompleted || []).length >= 3 },
+    { key: 'remediate',   label: 'Remediation Lab',         href: 'remediate.html',   done: !!p.remediationCompleted },
+    { key: 'logs',        label: 'Log Analysis',            href: 'logs.html',        done: !!p.logsCompleted },
+    { key: 'livefire',    label: 'Live Fire Exercise',      href: 'livefire.html',    done: !!p.livefireCompleted, capstone: true },
+  ];
+
+  const total = steps.length;
+  const doneCount = steps.filter(s => s.done).length;
+  const next = steps.find(s => !s.done);
+  const pct = Math.round((doneCount / total) * 100);
+
+  let eyebrow, title, sub, cta, href, icon;
+  if (!next) {
+    eyebrow = 'Mission complete';
+    title = 'All core modules cleared — you are certified for promptware defense.';
+    sub = 'Replay the Live Fire Exercise to sharpen your response time, or revisit any module.';
+    cta = 'Replay Live Fire →'; href = 'livefire.html'; icon = '★';
+  } else if (doneCount === 0) {
+    eyebrow = 'Start here';
+    title = 'New analyst? Begin with Alert Triage.';
+    sub = 'Work the Skill-Builder modules in order, then face the Live Fire capstone.';
+    cta = 'Start Alert Triage →'; href = 'triage.html'; icon = '▶';
+  } else if (next.capstone) {
+    eyebrow = 'You are ready';
+    title = 'Foundations cleared — take on the Live Fire Exercise.';
+    sub = 'Operation JadePuffer: defend a live, timed AI attack and earn your certification.';
+    cta = 'Begin Live Fire →'; href = 'livefire.html'; icon = '◎';
+  } else {
+    eyebrow = 'Next recommended step';
+    title = next.label;
+    sub = `Step ${doneCount + 1} of ${total} on your mission path.`;
+    cta = `Continue →`; href = next.href; icon = '➜';
+  }
+
+  mount.innerHTML = `
+    <div class="mp-banner">
+      <div class="mp-icon">${icon}</div>
+      <div class="mp-text">
+        <div class="mp-eyebrow">${eyebrow}</div>
+        <div class="mp-title">${next && next.capstone ? '🔴 ' : ''}${title}</div>
+        <div class="mp-sub">${sub}</div>
+      </div>
+      <div class="mp-progress-wrap">
+        <div class="mp-progress-track"><div class="mp-progress-fill" style="width:0%" id="mp-fill"></div></div>
+        <div class="mp-progress-label">${doneCount}/${total} · ${pct}%</div>
+      </div>
+      <a href="${href}" class="btn btn-primary mp-cta">${cta}</a>
+    </div>`;
+
+  setTimeout(() => { const f = document.getElementById('mp-fill'); if (f) f.style.width = pct + '%'; }, 300);
 }
 
 /* ══════════════════════════════════════════
